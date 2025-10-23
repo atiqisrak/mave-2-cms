@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="https://i.postimg.cc/g2d4f4V9/Atiq-Israk-Official-removebg.png" alt="Atiq Israk" width="120" height="120" style="border-radius: 50%; margin-bottom: 20px;">
+<img src="https://github.com/atiqisrak/mave-2-cms/blob/main/github-banner.png" alt="Mave CMS v2.0 Dashboard" width="800" height="400" style="border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
 
 ## 👨‍💻 **Created by [Atiq Israk](https://atiqisrak.vercel.app)**
 
@@ -399,6 +399,12 @@ pnpm run start:dev
 
 ## 🎯 Use Cases That Drive Results
 
+<div align="center">
+
+<img src="https://github.com/atiqisrak/mave-2-cms/blob/main/dashboard.png" alt="Mave CMS Dashboard" width="600" height="300" style="border-radius: 10px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+</div>
+
 ### 🏢 **Enterprise Websites**
 
 - **Multi-brand Management**: Manage multiple brands from one dashboard
@@ -430,6 +436,12 @@ pnpm run start:dev
 ---
 
 ## 🔧 Developer Tools & SDKs
+
+<div align="center">
+
+<img src="https://github.com/atiqisrak/mave-2-cms/blob/main/visual-edit.png" alt="Visual Editor" width="500" height="250" style="border-radius: 10px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+</div>
 
 ### **TypeScript SDK**
 
@@ -659,6 +671,8 @@ gantt
 
 <div align="center">
 
+<img src="https://github.com/atiqisrak/mave-2-cms/blob/main/connect-repo.png" alt="Connect Repository" width="600" height="300" style="border-radius: 10px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
 ### **Ready to Build the Future?**
 
 [![Get Started](https://img.shields.io/badge/Get%20Started%20Now-00D4AA?style=for-the-badge&logo=rocket&logoColor=white)](https://mave.io/signup)
@@ -723,6 +737,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### **Atiq Israk** - Full Stack Developer & CMS Architect
 
+<div align="center">
+
+<img src="https://github.com/atiqisrak/mave-2-cms/blob/main/login.png" alt="Login Interface" width="400" height="200" style="border-radius: 10px; margin: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+</div>
+
 [![Portfolio](https://img.shields.io/badge/Portfolio-atiqisrak.vercel.app-00D4AA?style=flat-square&logo=vercel&logoColor=white)](https://atiqisrak.vercel.app)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/atiq-israk)
 [![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/atiqisrak)
@@ -734,12 +754,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### 🌟 **Previous Work**
 
+<div align="center">
+
+<img src="https://github.com/atiqisrak/mave-2-cms/blob/main/send-pr.png" alt="Send Pull Request" width="500" height="250" style="border-radius: 10px; margin: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+</div>
+
 [![Mave v1](https://img.shields.io/badge/Mave%20CMS%20v1-Open%20Source-green?style=flat-square&logo=github&logoColor=white)](https://github.com/Ether-Technologies/mave-cms)
 [![Mave v2](https://img.shields.io/badge/Mave%20CMS%20v2-Current%20Project-blue?style=flat-square&logo=github&logoColor=white)](https://github.com/atiqisrak/mave-2-cms)
 
 ---
 
 ### 🚀 **Get Involved**
+
+<div align="center">
+
+<img src="https://github.com/atiqisrak/mave-2-cms/blob/main/thumb.png" alt="Thumbs Up" width="300" height="150" style="border-radius: 10px; margin: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+</div>
 
 [![Star](https://img.shields.io/github/stars/atiqisrak/mave-2-cms?style=social&logo=github&logoColor=white)](https://github.com/atiqisrak/mave-2-cms)
 [![Fork](https://img.shields.io/github/forks/atiqisrak/mave-2-cms?style=social&logo=github&logoColor=white)](https://github.com/atiqisrak/mave-2-cms)
