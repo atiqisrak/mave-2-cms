@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi';
-import { createGraphQLMutation, createGraphQLQuery } from './baseApi';
+import { createGraphQLMutation, createGraphQLQuery, graphqlQuery } from './baseApi';
 import { 
   AuthResponse, 
   LoginInput, 
@@ -66,9 +66,9 @@ const LOGOUT_MUTATION = `
   }
 `;
 
-const ME_QUERY = `
-  query Me {
-    me {
+const GET_USER_QUERY = `
+  query GetUser($id: String!) {
+    user(id: $id) {
       id
       email
       firstName
@@ -80,17 +80,7 @@ const ME_QUERY = `
       twoFactorEnabled
       lastLoginAt
       createdAt
-      organization {
-        id
-        name
-        slug
-        domain
-        plan
-        settings
-        branding
-        isActive
-        createdAt
-      }
+      organizationId
     }
   }
 `;
@@ -150,35 +140,77 @@ const RESET_PASSWORD_MUTATION = `
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginInput>({
-      queryFn: createGraphQLMutation(LOGIN_MUTATION),
+      queryFn: async (variables: LoginInput, { getState }) => {
+        const result = await createGraphQLMutation(LOGIN_MUTATION)(variables, { getState });
+        // Transform the GraphQL response to match AuthResponse structure
+        return {
+          data: result.data.login
+        };
+      },
       invalidatesTags: ['User'],
     }),
     
     register: builder.mutation<AuthResponse, RegisterInput>({
-      queryFn: createGraphQLMutation(REGISTER_MUTATION),
+      queryFn: async (variables: RegisterInput, { getState }) => {
+        const result = await createGraphQLMutation(REGISTER_MUTATION)(variables, { getState });
+        // Transform the GraphQL response to match AuthResponse structure
+        return {
+          data: result.data.register
+        };
+      },
       invalidatesTags: ['User', 'Organization'],
     }),
     
     refreshToken: builder.mutation<AuthResponse, { refreshToken: string }>({
-      queryFn: createGraphQLMutation(REFRESH_TOKEN_MUTATION),
+      queryFn: async (variables: { refreshToken: string }, { getState }) => {
+        const result = await createGraphQLMutation(REFRESH_TOKEN_MUTATION)(variables, { getState });
+        // Transform the GraphQL response to match AuthResponse structure
+        return {
+          data: result.data.refreshToken
+        };
+      },
     }),
     
     logout: builder.mutation<boolean, void>({
-      queryFn: createGraphQLMutation(LOGOUT_MUTATION),
+      queryFn: async (variables: void, { getState }) => {
+        const result = await createGraphQLMutation(LOGOUT_MUTATION)(variables, { getState });
+        // Transform the GraphQL response to return boolean
+        return {
+          data: result.data.logout
+        };
+      },
       invalidatesTags: ['User'],
     }),
     
-    getCurrentUser: builder.query<User, void>({
-      queryFn: createGraphQLQuery(ME_QUERY),
+    getCurrentUser: builder.query<User, { userId: string }>({
+      queryFn: async (variables: { userId: string }, { getState }) => {
+        const result = await createGraphQLQuery(GET_USER_QUERY)(variables, { getState });
+        // Transform the GraphQL response to match User structure
+        return {
+          data: result.data.user
+        };
+      },
       providesTags: ['User'],
     }),
     
     validateToken: builder.query<boolean, void>({
-      queryFn: createGraphQLQuery(VALIDATE_TOKEN_QUERY),
+      queryFn: async (variables: void, { getState }) => {
+        const result = await createGraphQLQuery(VALIDATE_TOKEN_QUERY)(variables, { getState });
+        // Transform the GraphQL response to return boolean
+        return {
+          data: result.data.validateToken
+        };
+      },
     }),
     
     createOrganization: builder.mutation<Organization, CreateOrganizationInput>({
-      queryFn: createGraphQLMutation(CREATE_ORGANIZATION_MUTATION),
+      queryFn: async (variables: CreateOrganizationInput, { getState }) => {
+        const result = await createGraphQLMutation(CREATE_ORGANIZATION_MUTATION)(variables, { getState });
+        // Transform the GraphQL response to match Organization structure
+        return {
+          data: result.data.createOrganization
+        };
+      },
       invalidatesTags: ['Organization'],
     }),
     
@@ -195,15 +227,35 @@ export const authApi = baseApi.injectEndpoints({
       };
       error?: string;
     }, { input: { token: string } }>({
-      queryFn: createGraphQLQuery(VALIDATE_INVITATION_QUERY),
+      queryFn: async (variables: { input: { token: string } }, { getState }) => {
+        const result = await createGraphQLQuery(VALIDATE_INVITATION_QUERY)(variables, { getState });
+        // Transform the GraphQL response to match the expected structure
+        return {
+          data: result.data.validateInvitationToken
+        };
+      },
     }),
     
     requestPasswordReset: builder.mutation<boolean, RequestPasswordResetInput>({
-      queryFn: createGraphQLMutation(REQUEST_PASSWORD_RESET_MUTATION),
+      queryFn: async (variables: RequestPasswordResetInput, { getState }) => {
+        // This mutation doesn't use input pattern, pass variables directly
+        const result = await graphqlQuery(REQUEST_PASSWORD_RESET_MUTATION, variables, getState as any);
+        // Transform the GraphQL response to return boolean
+        return {
+          data: result.data.requestPasswordReset
+        };
+      },
     }),
     
     resetPassword: builder.mutation<boolean, ResetPasswordInput>({
-      queryFn: createGraphQLMutation(RESET_PASSWORD_MUTATION),
+      queryFn: async (variables: ResetPasswordInput, { getState }) => {
+        // This mutation doesn't use input pattern, pass variables directly
+        const result = await graphqlQuery(RESET_PASSWORD_MUTATION, variables, getState as any);
+        // Transform the GraphQL response to return boolean
+        return {
+          data: result.data.resetPassword
+        };
+      },
     }),
   }),
 });

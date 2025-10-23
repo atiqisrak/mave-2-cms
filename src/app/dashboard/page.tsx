@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppSelector } from "@/hooks/use-app-selector";
-import { useGetCurrentUserQuery } from "@/store/api/authApi";
+// import { useGetCurrentUserQuery } from "@/store/api/authApi";
 import { 
   FileText, 
   Users, 
@@ -24,14 +24,14 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export default function DashboardPage() {
-  const { user, organization } = useAppSelector((state) => state.auth);
+  const { user, organization, tokens, isAuthenticated } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [logout] = useLogoutMutation();
   
-  const { data: currentUser, isLoading } = useGetCurrentUserQuery(undefined, {
-    skip: !user,
-  });
+  // We don't need to fetch current user since we already have it from login
+  const isLoading = false;
+  const error = null;
 
   const handleLogout = async () => {
     try {
@@ -45,6 +45,13 @@ export default function DashboardPage() {
       router.push('/auth/login');
     }
   };
+
+  // Handle authentication errors - only redirect if we don't have user data
+  if (error && !isLoading && !user) {
+    dispatch(clearCredentials());
+    router.push('/auth/login');
+    return null;
+  }
 
   if (isLoading) {
     return (
@@ -70,10 +77,10 @@ export default function DashboardPage() {
               <h1 className="text-2xl font-bold">Mave CMS v2.0</h1>
             </div>
             <div className="flex items-center space-x-4">
-              {currentUser && (
+              {user && (
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <User className="h-4 w-4" />
-                  <span>{currentUser.firstName} {currentUser.lastName}</span>
+                  <span>{user.firstName} {user.lastName}</span>
                   {organization && (
                     <>
                       <span>•</span>
@@ -95,7 +102,7 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome back, {currentUser?.firstName}!</h2>
+          <h2 className="text-3xl font-bold mb-2">Welcome back, {user?.firstName}!</h2>
           <p className="text-muted-foreground">
             Here's what's happening with your content management system.
           </p>

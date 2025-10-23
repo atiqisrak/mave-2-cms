@@ -54,18 +54,23 @@ export function LoginForm() {
       const result = await login(values).unwrap();
       
       // Store credentials in Redux
+      const userData = {
+        ...result.user,
+        status: 'active' as const,
+        twoFactorEnabled: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      const tokenData = {
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      };
+      
+      
       dispatch(setCredentials({
-        user: {
-          ...result.user,
-          status: 'active' as const,
-          twoFactorEnabled: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        tokens: {
-          accessToken: result.accessToken,
-          refreshToken: result.refreshToken,
-        },
+        user: userData,
+        tokens: tokenData,
         organization: undefined, // Will be fetched separately if needed
       }));
 

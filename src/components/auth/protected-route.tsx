@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/hooks/use-app-selector';
-import { useGetCurrentUserQuery } from '@/store/api/authApi';
+// import { useGetCurrentUserQuery } from '@/store/api/authApi';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -20,13 +20,9 @@ export function ProtectedRoute({
   const router = useRouter();
   const { isAuthenticated, user, tokens } = useAppSelector((state) => state.auth);
   
-  const { 
-    data: currentUser, 
-    isLoading, 
-    error 
-  } = useGetCurrentUserQuery(undefined, {
-    skip: !tokens?.accessToken,
-  });
+  // We don't need to fetch current user since we already have it from login
+  const isLoading = false;
+  const error = null;
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !tokens?.accessToken) {
@@ -67,8 +63,8 @@ export function ProtectedRoute({
   }
 
   // Check role-based access
-  if (requiredRoles.length > 0 && currentUser) {
-    const userRoles = currentUser.roles?.map(role => role.role.slug) || [];
+  if (requiredRoles.length > 0 && user) {
+    const userRoles = user.roles?.map(role => role.role.slug) || [];
     const hasRequiredRole = requiredRoles.some(role => userRoles.includes(role));
     
     if (!hasRequiredRole) {

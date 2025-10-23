@@ -21,7 +21,7 @@ const graphqlRequestBaseQuery = fetchBaseQuery({
 });
 
 // Custom GraphQL query function
-const graphqlQuery = async (query: string, variables: any = {}, getState: () => RootState) => {
+export const graphqlQuery = async (query: string, variables: any = {}, getState: () => RootState) => {
   const state = getState();
   const token = state.auth.tokens?.accessToken;
   
@@ -38,15 +38,18 @@ const graphqlQuery = async (query: string, variables: any = {}, getState: () => 
   });
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    const errorText = await response.text();
+    throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
   }
 
   const result: GraphQLResponse = await response.json();
   
-  if (result.errors && result.errors.length > 0) {
+  // Only throw error if there are actual GraphQL errors
+  if (result.errors && Array.isArray(result.errors) && result.errors.length > 0) {
     throw new Error(result.errors[0].message);
   }
 
+  // Return the data directly from the GraphQL response
   return { data: result.data };
 };
 
