@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 export function useAuthService() {
   const dispatch = useAppDispatch();
-  const { user, tokens, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { user, tokens, isAuthenticated, roles, permissions } = useAppSelector((state) => state.auth);
   
   const [loginMutation] = useLoginMutation();
   const [triggerUserDetails] = useLazyGetUserDetailsQuery();
@@ -130,23 +130,51 @@ export function useAuthService() {
   // Check if user has specific role
   const hasRole = (roleSlug: string): boolean => {
     if (!user || !isAuthenticated) return false;
-    return user.roles?.some((role: any) => role.role.slug === roleSlug) || false;
+    // Use roles from Redux state (not user.roles)
+    const userRoles = roles || [];
+    console.log('Checking role:', roleSlug, 'User roles from Redux:', userRoles);
+    
+    const hasRoleResult = userRoles.some((role: any) => {
+      // Handle different role data structures
+      if (role.role && role.role.slug) {
+        console.log('Checking role.role.slug:', role.role.slug, 'against:', roleSlug);
+        return role.role.slug === roleSlug;
+      }
+      if (role.slug) {
+        console.log('Checking role.slug:', role.slug, 'against:', roleSlug);
+        return role.slug === roleSlug;
+      }
+      return false;
+    });
+    
+    console.log('hasRole result for', roleSlug, ':', hasRoleResult);
+    return hasRoleResult;
   };
 
   // Check if user has specific permission
   const hasPermission = (permissionSlug: string): boolean => {
     if (!user || !isAuthenticated) return false;
-    return user.permissions?.some((permission: any) => permission.slug === permissionSlug) || false;
+    // Use permissions from Redux state (not user.permissions)
+    const userPermissions = permissions || [];
+    return userPermissions.some((permission: any) => {
+      if (typeof permission === 'string') {
+        return permission === permissionSlug;
+      }
+      if (permission.slug) {
+        return permission.slug === permissionSlug;
+      }
+      return false;
+    });
   };
 
   // Check if user is admin or super admin
   const isAdmin = (): boolean => {
-    return hasRole('admin') || hasRole('super_admin');
+    return hasRole('admin') || hasRole('super-admin');
   };
 
   // Check if user is super admin
   const isSuperAdmin = (): boolean => {
-    return hasRole('super_admin');
+    return hasRole('super-admin');
   };
 
   return {
