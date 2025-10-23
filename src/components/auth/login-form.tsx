@@ -1,20 +1,23 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useAuth } from '@/hooks/use-auth';
-import { Loader2, Mail, Lock, User } from 'lucide-react';
+import { useLoginMutation } from '@/store/api/authApi';
+import { useAppDispatch } from '@/hooks/use-app-dispatch';
+import { setCredentials } from '@/store/slices/authSlice';
+import { Loader2, Mail, Lock, Building } from 'lucide-react';
+import { toast } from 'sonner';
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  organizationSlug: z.string().min(1, 'Organization slug is required'),
+  emailOrUsername: z.string().min(1, 'Email or username is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
@@ -22,24 +25,66 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const [login] = useLoginMutation();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      organizationSlug: '',
+      emailOrUsername: '',
       password: '',
     },
   });
 
+  // Load saved organization slug from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedOrgSlug = localStorage.getItem('mave_cms_organization_slug');
+      if (savedOrgSlug) {
+        form.setValue('organizationSlug', savedOrgSlug);
+      }
+    }
+  }, [form]);
+
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
     try {
-      await login(values.email, values.password);
+      const result = await login(values).unwrap();
+      
+      // Store credentials in Redux
+      dispatch(setCredentials({
+        user: {
+          ...result.user,
+          status: 'active' as const,
+          twoFactorEnabled: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        tokens: {
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+        },
+        organization: undefined, // Will be fetched separately if needed
+      }));
+
+      // Save organization slug for future logins
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('mave_cms_organization_slug', values.organizationSlug);
+      }
+
+      // Handle 2FA if required
+      if (result.requiresTwoFactor) {
+        toast.info('Two-factor authentication is required. Please check your authenticator app.');
+        // TODO: Implement 2FA flow
+        return;
+      }
+
+      toast.success('Login successful!');
       router.push('/dashboard');
-    } catch (error) {
-      // Error is handled in the useAuth hook
+    } catch (error: any) {
+      toast.error(error.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -63,15 +108,36 @@ export function LoginForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="email"
+              name="organizationSlug"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Organization Slug</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Enter organization slug"
+                        className="pl-10"
+                        {...field}
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="emailOrUsername"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email or Username</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
-                        placeholder="Enter your email"
+                        placeholder="Enter your email or username"
                         className="pl-10"
                         {...field}
                         disabled={isLoading}
