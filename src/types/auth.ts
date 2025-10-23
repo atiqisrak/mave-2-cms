@@ -13,6 +13,7 @@ export interface User {
   updatedAt: string;
   organization?: Organization;
   roles?: UserRole[];
+  permissions?: Permission[];
 }
 
 export interface Organization {
@@ -145,6 +146,8 @@ export interface AuthState {
   tokens: AuthTokens | null;
   isAuthenticated: boolean;
   organization: Organization | null;
+  roles: UserRole[];
+  permissions: Permission[];
   invitationToken: string | null;
   isLoading: boolean;
   error: string | null;
@@ -175,6 +178,11 @@ export interface UpdateUserInput {
   phone?: string;
   timezone?: string;
   locale?: string;
+}
+
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface RequestPasswordResetInput {

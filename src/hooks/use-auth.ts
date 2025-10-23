@@ -8,7 +8,17 @@ interface User {
   email: string;
   firstName: string;
   lastName: string;
-  role: string;
+  roles: {
+    id: string;
+    roleId: string;
+    role: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+    scope: string;
+    isActive: boolean;
+  }[];
   organization: {
     id: string;
     name: string;

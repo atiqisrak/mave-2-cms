@@ -1,5 +1,4 @@
 import { baseApi } from './baseApi';
-import { createGraphQLMutation, createGraphQLQuery } from './baseApi';
 import { 
   CreateInvitationInput, 
   Invitation, 
@@ -159,40 +158,104 @@ const REGISTER_WITH_INVITATION_MUTATION = `
 export const invitationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     inviteUserByEmail: builder.mutation<Invitation, CreateInvitationInput>({
-      queryFn: createGraphQLMutation(INVITE_USER_BY_EMAIL_MUTATION),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: INVITE_USER_BY_EMAIL_MUTATION,
+          variables: { input: args },
+        },
+      }),
+      transformResponse: (response: any) => response.data.inviteUserByEmail,
       invalidatesTags: ['Invitation'],
     }),
     
     createShareableInviteLink: builder.mutation<Invitation, CreateInvitationInput>({
-      queryFn: createGraphQLMutation(CREATE_SHAREABLE_INVITE_LINK_MUTATION),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: CREATE_SHAREABLE_INVITE_LINK_MUTATION,
+          variables: { input: args },
+        },
+      }),
+      transformResponse: (response: any) => response.data.createShareableInviteLink,
       invalidatesTags: ['Invitation'],
     }),
     
     validateInvitationToken: builder.query<ValidateInvitationResponse, ValidateInvitationInput>({
-      queryFn: createGraphQLQuery(VALIDATE_INVITATION_TOKEN_QUERY),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: VALIDATE_INVITATION_TOKEN_QUERY,
+          variables: { input: args },
+        },
+      }),
+      transformResponse: (response: any) => response.data.validateInvitationToken,
     }),
     
     getInvitation: builder.query<Invitation, { token: string }>({
-      queryFn: createGraphQLQuery(GET_INVITATION_QUERY),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: GET_INVITATION_QUERY,
+          variables: args,
+        },
+      }),
+      transformResponse: (response: any) => response.data.getInvitation,
       providesTags: (result, error, { token }) => [{ type: 'Invitation', id: token }],
     }),
     
     listInvitations: builder.query<ListInvitationsResponse, ListInvitationsInput>({
-      queryFn: createGraphQLQuery(LIST_INVITATIONS_QUERY),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: LIST_INVITATIONS_QUERY,
+          variables: { input: args },
+        },
+      }),
+      transformResponse: (response: any) => response.data.listInvitations,
       providesTags: ['Invitation'],
     }),
     
     resendInvite: builder.mutation<boolean, ResendInvitationInput>({
-      queryFn: createGraphQLMutation(RESEND_INVITE_MUTATION),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: RESEND_INVITE_MUTATION,
+          variables: { input: args },
+        },
+      }),
+      transformResponse: (response: any) => response.data.resendInvite,
     }),
     
     revokeInvite: builder.mutation<boolean, RevokeInvitationInput>({
-      queryFn: createGraphQLMutation(REVOKE_INVITE_MUTATION),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: REVOKE_INVITE_MUTATION,
+          variables: { input: args },
+        },
+      }),
+      transformResponse: (response: any) => response.data.revokeInvite,
       invalidatesTags: ['Invitation'],
     }),
     
     registerWithInvitation: builder.mutation<RegisterWithInvitationResponse, RegisterWithInvitationInput>({
-      queryFn: createGraphQLMutation(REGISTER_WITH_INVITATION_MUTATION),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: REGISTER_WITH_INVITATION_MUTATION,
+          variables: { input: args },
+        },
+      }),
+      transformResponse: (response: any) => response.data.registerWithInvitation,
       invalidatesTags: ['User', 'Invitation'],
     }),
   }),

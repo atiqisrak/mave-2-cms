@@ -12,6 +12,7 @@ import {
   Shield,
   Zap
 } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -27,15 +28,19 @@ export default function Home() {
               <h1 className="text-2xl font-bold">Mave CMS v2.0</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline">Documentation</Button>
-              <Button>Get Started</Button>
+              <Link href="/docs">
+                <Button variant="outline">Documentation</Button>
+              </Link>
+              <Link href="/auth/login">
+                <Button>Get Started</Button>
+              </Link>
             </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-br from-primary/5 to-secondary/5">
+      <section className="py-20 bg-linear-to-br from-primary/5 to-secondary/5">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-5xl font-bold mb-6">
             The Future of{" "}
@@ -46,12 +51,16 @@ export default function Home() {
             content management with enterprise-grade security and scalability.
           </p>
           <div className="flex justify-center space-x-4">
-            <Button size="lg" className="px-8">
-              Start Building
-            </Button>
-            <Button size="lg" variant="outline" className="px-8">
-              View Demo
-            </Button>
+            <Link href="/auth/register">
+              <Button size="lg" className="px-8">
+                Start Building
+              </Button>
+            </Link>
+            <Link href="/dashboard">
+              <Button size="lg" variant="outline" className="px-8">
+                View Demo
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

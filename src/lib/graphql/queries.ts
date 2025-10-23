@@ -11,7 +11,17 @@ export const LOGIN_MUTATION = gql`
         email
         firstName
         lastName
-        role
+        roles {
+          id
+          roleId
+          role {
+            id
+            name
+            slug
+          }
+          scope
+          isActive
+        }
         organization {
           id
           name
@@ -32,7 +42,17 @@ export const REGISTER_MUTATION = gql`
         email
         firstName
         lastName
-        role
+        roles {
+          id
+          roleId
+          role {
+            id
+            name
+            slug
+          }
+          scope
+          isActive
+        }
         organization {
           id
           name
@@ -65,7 +85,17 @@ export const ME_QUERY = gql`
       email
       firstName
       lastName
-      role
+      roles {
+        id
+        roleId
+        role {
+          id
+          name
+          slug
+        }
+        scope
+        isActive
+      }
       organization {
         id
         name
@@ -83,7 +113,17 @@ export const USERS_QUERY = gql`
       email
       firstName
       lastName
-      role
+      roles {
+        id
+        roleId
+        role {
+          id
+          name
+          slug
+        }
+        scope
+        isActive
+      }
       isActive
       createdAt
       updatedAt
@@ -102,7 +142,17 @@ export const USER_QUERY = gql`
       email
       firstName
       lastName
-      role
+      roles {
+        id
+        roleId
+        role {
+          id
+          name
+          slug
+        }
+        scope
+        isActive
+      }
       isActive
       createdAt
       updatedAt
@@ -149,7 +199,17 @@ export const ORGANIZATION_QUERY = gql`
         email
         firstName
         lastName
-        role
+        roles {
+          id
+          roleId
+          role {
+            id
+            name
+            slug
+          }
+          scope
+          isActive
+        }
       }
     }
   }

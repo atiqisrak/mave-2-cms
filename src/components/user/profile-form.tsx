@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useUpdateUserMutation, useChangePasswordMutation } from '@/store/api/userApi';
-import { useAppSelector, useAppDispatch } from '@/hooks/use-app-selector';
+import { useAppSelector } from '@/hooks/use-app-selector';
+import { useAppDispatch } from '@/hooks/use-app-dispatch';
 import { updateUser } from '@/store/slices/authSlice';
 import { Loader2, User, Mail, Phone, Globe, Settings } from 'lucide-react';
 import { toast } from 'sonner';
@@ -175,28 +176,18 @@ export function ProfileForm() {
                 />
               </div>
 
-              <FormField
-                control={profileForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type="email"
-                          className="pl-10"
-                          {...field}
-                          value={user.email}
-                          disabled
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    className="pl-10"
+                    value={user.email}
+                    disabled
+                  />
+                </div>
+              </div>
 
               <FormField
                 control={profileForm.control}

@@ -1,5 +1,4 @@
-import { baseApi } from './baseApi';
-import { createGraphQLMutation, createGraphQLQuery } from './baseApi';
+import { baseApi, graphqlQuery } from './baseApi';
 import { User, UpdateUserInput, ChangePasswordInput, UserRole, Permission } from '@/types/auth';
 
 const UPDATE_USER_MUTATION = `
@@ -53,16 +52,6 @@ const GET_USER_ROLES_QUERY = `
     userRoles(userId: $userId) {
       id
       roleId
-      role {
-        id
-        name
-        slug
-        description
-        color
-        icon
-        priority
-        isSystem
-      }
       scope
       isActive
       assignedAt
@@ -105,33 +94,82 @@ const GET_USERS_QUERY = `
 `;
 
 export const userApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     updateUser: builder.mutation<User, { id: string; input: UpdateUserInput }>({
-      queryFn: createGraphQLMutation(UPDATE_USER_MUTATION),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: UPDATE_USER_MUTATION,
+          variables: args,
+        },
+      }),
+      transformResponse: (response: any) => response.data.updateUser,
       invalidatesTags: ['User'],
     }),
     
     changePassword: builder.mutation<boolean, ChangePasswordInput>({
-      queryFn: createGraphQLMutation(CHANGE_PASSWORD_MUTATION),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: CHANGE_PASSWORD_MUTATION,
+          variables: args,
+        },
+      }),
+      transformResponse: (response: any) => response.data.changePassword,
     }),
     
     getUser: builder.query<User, { id: string }>({
-      queryFn: createGraphQLQuery(GET_USER_QUERY),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: GET_USER_QUERY,
+          variables: args,
+        },
+      }),
+      transformResponse: (response: any) => response.data.user,
       providesTags: (result, error, { id }) => [{ type: 'User', id }],
     }),
     
     getUserRoles: builder.query<UserRole[], { userId: string }>({
-      queryFn: createGraphQLQuery(GET_USER_ROLES_QUERY),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: GET_USER_ROLES_QUERY,
+          variables: args,
+        },
+      }),
+      transformResponse: (response: any) => response.data.userRoles,
       providesTags: (result, error, { userId }) => [{ type: 'User', id: userId }],
     }),
     
     getUserPermissions: builder.query<Permission[], { userId: string }>({
-      queryFn: createGraphQLQuery(GET_USER_PERMISSIONS_QUERY),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: GET_USER_PERMISSIONS_QUERY,
+          variables: args,
+        },
+      }),
+      transformResponse: (response: any) => response.data.userPermissionsWithDetails,
       providesTags: (result, error, { userId }) => [{ type: 'User', id: userId }],
     }),
     
     getUsers: builder.query<User[], { organizationId: string }>({
-      queryFn: createGraphQLQuery(GET_USERS_QUERY),
+      query: (args) => ({
+        url: '',
+        method: 'POST',
+        body: {
+          query: GET_USERS_QUERY,
+          variables: args,
+        },
+      }),
+      transformResponse: (response: any) => response.data.users,
       providesTags: ['User'],
     }),
   }),

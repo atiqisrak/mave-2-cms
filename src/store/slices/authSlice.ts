@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User, Organization, AuthTokens, AuthState } from '@/types/auth';
+import { User, Organization, AuthTokens, AuthState, UserRole, Permission } from '@/types/auth';
 
 // Helper functions for localStorage
 const saveToLocalStorage = (key: string, value: any) => {
@@ -33,6 +33,8 @@ const getInitialState = (): AuthState => {
     tokens: savedTokens,
     isAuthenticated: !!(savedTokens?.accessToken && savedUser),
     organization: savedOrganization,
+    roles: [],
+    permissions: [],
     invitationToken: null,
     isLoading: false,
     error: null,
@@ -59,12 +61,34 @@ const authSlice = createSlice({
       if (organization) {
         saveToLocalStorage('mave_cms_organization', organization);
       }
+    },
+    
+    setUserData: (state, action: PayloadAction<{
+      user: User;
+      organization?: Organization;
+      roles: UserRole[];
+      permissions: Permission[];
+    }>) => {
+      const { user, organization, roles, permissions } = action.payload;
+      state.user = user;
+      state.organization = organization || null;
+      state.roles = roles;
+      state.permissions = permissions;
+      state.isAuthenticated = true;
+      state.error = null;
       
+      // Save to localStorage
+      saveToLocalStorage('mave_cms_user', user);
+      if (organization) {
+        saveToLocalStorage('mave_cms_organization', organization);
+      }
     },
     clearCredentials: (state) => {
       state.user = null;
       state.tokens = null;
       state.organization = null;
+      state.roles = [];
+      state.permissions = [];
       state.isAuthenticated = false;
       state.invitationToken = null;
       state.error = null;
@@ -102,6 +126,7 @@ const authSlice = createSlice({
 
 export const {
   setCredentials,
+  setUserData,
   clearCredentials,
   setInvitationToken,
   setLoading,

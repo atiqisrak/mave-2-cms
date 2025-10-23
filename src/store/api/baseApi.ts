@@ -1,35 +1,42 @@
+"use client";
+
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { GraphQLResponse } from '@/types/auth';
-import { RootState } from '../index';
 
-const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:7845/graphql';
+// Base API configuration
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7845';
 
-// Custom GraphQL base query
-const graphqlRequestBaseQuery = fetchBaseQuery({
-  baseUrl: GRAPHQL_URL,
-  prepareHeaders: (headers, { getState }) => {
-    const state = getState() as RootState;
-    const token = state.auth.tokens?.accessToken;
-    
-    if (token) {
-      headers.set('authorization', `Bearer ${token}`);
-    }
-    
-    headers.set('content-type', 'application/json');
-    return headers;
-  },
+export const baseApi = createApi({
+  reducerPath: 'api',
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${baseUrl}/graphql`,
+    prepareHeaders: (headers) => {
+      headers.set('Content-Type', 'application/json');
+      
+      // Get token from localStorage for client-side requests
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('mave_cms_token');
+        if (token) {
+          headers.set('Authorization', `Bearer ${token}`);
+        }
+      }
+      
+      return headers;
+    },
+  }),
+  tagTypes: ['User', 'Organization', 'Role', 'Permission', 'Invitation'],
+  endpoints: () => ({}),
 });
 
-// Custom GraphQL query function
-export const graphqlQuery = async (query: string, variables: any = {}, getState: () => RootState) => {
-  const state = getState();
-  const token = state.auth.tokens?.accessToken;
+// GraphQL query helper functions
+export const graphqlQuery = async (query: string, variables: any = {}) => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('mave_cms_token') : null;
   
-  const response = await fetch(GRAPHQL_URL, {
+  const response = await fetch(`${baseUrl}/graphql`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
     body: JSON.stringify({
       query,
@@ -44,33 +51,31 @@ export const graphqlQuery = async (query: string, variables: any = {}, getState:
 
   const result: GraphQLResponse = await response.json();
   
-  // Only throw error if there are actual GraphQL errors
-  if (result.errors && Array.isArray(result.errors) && result.errors.length > 0) {
+  if (result.errors) {
     throw new Error(result.errors[0].message);
   }
-
-  // Return the data directly from the GraphQL response
-  return { data: result.data };
+  
+  return result.data;
 };
 
-// Base API slice
-export const baseApi = createApi({
-  reducerPath: 'api',
-  baseQuery: graphqlRequestBaseQuery,
-  tagTypes: ['User', 'Organization', 'Role', 'Permission', 'Invitation'],
-  endpoints: () => ({}),
-});
-
-// Helper function to create GraphQL mutations/queries
-export const createGraphQLQuery = (query: string) => 
-  async (variables: any = {}, { getState }: any): Promise<{ data: any }> => {
-    // Check if the query uses input pattern by looking for $input in the query
-    const usesInputPattern = query.includes('$input:');
-    const wrappedVariables = usesInputPattern ? { input: variables } : variables;
-    return await graphqlQuery(query, wrappedVariables, getState);
+export const createGraphQLQuery = (query: string) => {
+  return async (args: any) => {
+    try {
+      const data = await graphqlQuery(query, args);
+      return { data };
+    } catch (error: any) {
+      return { error: { message: error.message } };
+    }
   };
+};
 
-export const createGraphQLMutation = (mutation: string) => 
-  async (variables: any = {}, { getState }: any): Promise<{ data: any }> => {
-    return await graphqlQuery(mutation, { input: variables }, getState);
+export const createGraphQLMutation = (mutation: string) => {
+  return async (args: any) => {
+    try {
+      const data = await graphqlQuery(mutation, args);
+      return { data };
+    } catch (error: any) {
+      return { error: { message: error.message } };
+    }
   };
+};

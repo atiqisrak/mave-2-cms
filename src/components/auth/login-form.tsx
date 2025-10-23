@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useLoginMutation } from '@/store/api/authApi';
 import { useAppDispatch } from '@/hooks/use-app-dispatch';
 import { setCredentials } from '@/store/slices/authSlice';
+import { useAuthService } from '@/hooks/use-auth-service';
 import { Loader2, Mail, Lock, Building } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -26,8 +27,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const [login] = useLoginMutation();
+  const { login } = useAuthService();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -51,42 +51,12 @@ export function LoginForm() {
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
     try {
-      const result = await login(values).unwrap();
+      await login({
+        organizationSlug: values.organizationSlug,
+        emailOrUsername: values.emailOrUsername,
+        password: values.password,
+      });
       
-      // Store credentials in Redux
-      const userData = {
-        ...result.user,
-        status: 'active' as const,
-        twoFactorEnabled: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      
-      const tokenData = {
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-      };
-      
-      
-      dispatch(setCredentials({
-        user: userData,
-        tokens: tokenData,
-        organization: undefined, // Will be fetched separately if needed
-      }));
-
-      // Save organization slug for future logins
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('mave_cms_organization_slug', values.organizationSlug);
-      }
-
-      // Handle 2FA if required
-      if (result.requiresTwoFactor) {
-        toast.info('Two-factor authentication is required. Please check your authenticator app.');
-        // TODO: Implement 2FA flow
-        return;
-      }
-
-      toast.success('Login successful!');
       router.push('/dashboard');
     } catch (error: any) {
       toast.error(error.message || 'Login failed');

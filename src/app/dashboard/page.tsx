@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppSelector } from "@/hooks/use-app-selector";
+import { useAuthService } from '@/hooks/use-auth-service';
+import { useAppSelector } from '@/hooks/use-app-selector';
 // import { useGetCurrentUserQuery } from "@/store/api/authApi";
 import { 
   FileText, 
@@ -22,9 +23,15 @@ import { clearCredentials } from "@/store/slices/authSlice";
 import { useLogoutMutation } from "@/store/api/authApi";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Link from "next/link";
+import { CreateOrganizationCard } from "@/components/organization/create-organization-card";
+import { InviteUserCard } from "@/components/organization/invite-user-card";
+import { OrganizationSettingsCard } from "@/components/organization/organization-settings-card";
+import { InvitationListCard } from "@/components/organization/invitation-list-card";
 
 export default function DashboardPage() {
-  const { user, organization, tokens, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { user, isAdmin, isSuperAdmin } = useAuthService();
+  const { organization } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [logout] = useLogoutMutation();
@@ -78,16 +85,12 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center space-x-4">
               {user && (
-                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground cursor-pointer"
+                title={`${user.firstName} ${user.lastName}`}
+                onClick={() => router.push('/dashboard/profile')}
+                >
                   <User className="h-4 w-4" />
                   <span>{user.firstName} {user.lastName}</span>
-                  {organization && (
-                    <>
-                      <span>•</span>
-                      <Building className="h-4 w-4" />
-                      <span>{organization.name}</span>
-                    </>
-                  )}
                 </div>
               )}
               <Button variant="outline" onClick={handleLogout}>
@@ -108,115 +111,54 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Content</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
-              <p className="text-xs text-muted-foreground">+20% from last month</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Team Members</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground">+2 new this month</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Published</CardTitle>
-              <Globe className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">856</div>
-              <p className="text-xs text-muted-foreground">+12% from last month</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Draft</CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">378</div>
-              <p className="text-xs text-muted-foreground">-5% from last month</p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Organization Management */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Super Admin: Create Organization */}
+          {isSuperAdmin() && (
+            <CreateOrganizationCard 
+              onCreateSuccess={() => {
+                toast.success('Organization created successfully!');
+                // Refresh organization data
+              }}
+            />
+          )}
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>
-                Common tasks and shortcuts
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button className="w-full justify-start">
-                <FileText className="mr-2 h-4 w-4" />
-                Create New Content
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Upload className="mr-2 h-4 w-4" />
-                Upload Media
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Users className="mr-2 h-4 w-4" />
-                Manage Team
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Org Admin: Invite Users */}
+          {isAdmin() && organization && (
+            <InviteUserCard 
+              organizationId={organization.id}
+              onInviteSuccess={() => {
+                toast.success('Invitation sent successfully!');
+                // Refresh invitations list
+              }}
+            />
+          )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Latest updates and changes
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">New content published</p>
-                    <p className="text-xs text-muted-foreground">2 minutes ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">Team member added</p>
-                    <p className="text-xs text-muted-foreground">1 hour ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">Content updated</p>
-                    <p className="text-xs text-muted-foreground">3 hours ago</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Organization Settings */}
+          {organization && (
+            <OrganizationSettingsCard 
+              organization={organization}
+              onUpdateSuccess={() => {
+                toast.success('Organization updated successfully!');
+                // Refresh organization data
+              }}
+            />
+          )}
+
+          {/* Invitation Management */}
+          {isAdmin() && (
+            <InvitationListCard 
+              invitations={[]} // TODO: Fetch from API
+              onResend={(invitationId) => {
+                console.log('Resending invitation:', invitationId);
+                toast.success('Invitation resent successfully!');
+              }}
+              onRevoke={(invitationId) => {
+                console.log('Revoking invitation:', invitationId);
+                toast.success('Invitation revoked successfully!');
+              }}
+            />
+          )}
         </div>
       </main>
     </div>
