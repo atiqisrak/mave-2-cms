@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ReduxProvider } from "@/components/providers/redux-provider";
 import { GraphQLProvider } from "@/components/providers/graphql-provider";
+import { AuthInitializer } from "@/components/providers/auth-initializer";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -33,7 +34,9 @@ export default function RootLayout({
       >
         <ReduxProvider>
           <GraphQLProvider>
-            {children}
+            <AuthInitializer>
+              {children}
+            </AuthInitializer>
             <Toaster />
           </GraphQLProvider>
         </ReduxProvider>

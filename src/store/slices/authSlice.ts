@@ -27,14 +27,16 @@ const getInitialState = (): AuthState => {
   const savedTokens = loadFromLocalStorage('mave_cms_tokens');
   const savedUser = loadFromLocalStorage('mave_cms_user');
   const savedOrganization = loadFromLocalStorage('mave_cms_organization');
+  const savedRoles = loadFromLocalStorage('mave_cms_roles') || [];
+  const savedPermissions = loadFromLocalStorage('mave_cms_permissions') || [];
   
   return {
     user: savedUser,
     tokens: savedTokens,
     isAuthenticated: !!(savedTokens?.accessToken && savedUser),
     organization: savedOrganization,
-    roles: [],
-    permissions: [],
+    roles: savedRoles,
+    permissions: savedPermissions,
     invitationToken: null,
     isLoading: false,
     error: null,
@@ -79,6 +81,8 @@ const authSlice = createSlice({
       
       // Save to localStorage
       saveToLocalStorage('mave_cms_user', user);
+      saveToLocalStorage('mave_cms_roles', roles);
+      saveToLocalStorage('mave_cms_permissions', permissions);
       if (organization) {
         saveToLocalStorage('mave_cms_organization', organization);
       }
@@ -94,9 +98,14 @@ const authSlice = createSlice({
       state.error = null;
       
       // Clear from localStorage
-      clearFromLocalStorage('mave_cms_user');
-      clearFromLocalStorage('mave_cms_tokens');
-      clearFromLocalStorage('mave_cms_organization');
+      // clearFromLocalStorage('mave_cms_user');
+      // clearFromLocalStorage('mave_cms_tokens');
+      // clearFromLocalStorage('mave_cms_organization');
+      // clearFromLocalStorage('mave_cms_roles');
+      // clearFromLocalStorage('mave_cms_permissions');
+      // clearFromLocalStorage('mave_cms_organization_slug');
+      // clear all from local storage
+      localStorage.clear();
     },
     setInvitationToken: (state, action: PayloadAction<string | null>) => {
       state.invitationToken = action.payload;

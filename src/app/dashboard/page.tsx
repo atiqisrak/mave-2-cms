@@ -36,28 +36,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const [logout] = useLogoutMutation();
   
-  // Debug logging
-  console.log('Dashboard - User data:', user);
-  console.log('Dashboard - User roles from Redux:', roles);
-  console.log('Dashboard - User permissions from Redux:', permissions);
-  console.log('Dashboard - Organization:', organization);
-  console.log('Dashboard - isAdmin():', isAdmin());
-  console.log('Dashboard - isSuperAdmin():', isSuperAdmin());
-  
-  // Additional role debugging
-  if (roles && roles.length > 0) {
-    console.log('Dashboard - Role details from Redux:');
-    roles.forEach((role: any, index: number) => {
-      console.log(`  Role ${index}:`, role);
-      if (role.role) {
-        console.log(`    Role slug: ${role.role.slug}`);
-        console.log(`    Role name: ${role.role.name}`);
-      }
-    });
-  } else {
-    console.log('Dashboard - No roles found in Redux state');
-  }
-  
   // We don't need to fetch current user since we already have it from login
   const isLoading = false;
   const error = null;
@@ -172,11 +150,9 @@ export default function DashboardPage() {
             <InvitationListCard 
               invitations={[]} // TODO: Fetch from API
               onResend={(invitationId) => {
-                console.log('Resending invitation:', invitationId);
                 toast.success('Invitation resent successfully!');
               }}
               onRevoke={(invitationId) => {
-                console.log('Revoking invitation:', invitationId);
                 toast.success('Invitation revoked successfully!');
               }}
             />

@@ -19,8 +19,6 @@ export function useAuthService() {
   // Fetch complete user data after login using the new comprehensive query
   const fetchCompleteUserData = async (userId: string) => {
     try {
-      console.log('Fetching complete user data for ID:', userId);
-      
       // Use the lazy query to trigger the GetUserDetails query
       const userDetailsResult = await triggerUserDetails({ id: userId });
       
@@ -29,13 +27,6 @@ export function useAuthService() {
       }
 
       const userDetails = userDetailsResult.data;
-      console.log('User details fetched:', {
-        user: userDetails.user?.email,
-        organization: userDetails.organization?.name,
-        rolesCount: userDetails.roles?.length,
-        permissionsCount: userDetails.permissions?.length,
-        detailedPermissionsCount: userDetails.detailedPermissions?.length,
-      });
 
       // Update Redux store with complete data
       dispatch(setUserData({
@@ -52,7 +43,6 @@ export function useAuthService() {
         permissions: userDetails.detailedPermissions || [],
       };
     } catch (error: any) {
-      console.error('Failed to fetch complete user data:', error);
       throw error;
     }
   };
@@ -63,9 +53,7 @@ export function useAuthService() {
       dispatch(setLoading(true));
       
       // Step 1: Login and get tokens
-      console.log('Step 1: Attempting login...');
       const loginResult = await loginMutation(loginData).unwrap();
-      console.log('Login successful, user ID:', loginResult.user.id);
       
       // Step 2: Store tokens and basic user info
       dispatch(setCredentials({
@@ -83,20 +71,12 @@ export function useAuthService() {
       }));
 
       // Step 3: Fetch complete user data using new comprehensive query
-      console.log('Step 3: Fetching complete user data...');
       const completeData = await fetchCompleteUserData(loginResult.user.id);
-      console.log('Complete user data fetched:', {
-        user: completeData.user?.email,
-        organization: completeData.organization?.name,
-        rolesCount: completeData.roles?.length,
-        permissionsCount: completeData.permissions?.length,
-      });
       
       toast.success('Login successful!');
       return completeData;
       
     } catch (error: any) {
-      console.error('Login failed:', error);
       dispatch(clearCredentials());
       toast.error(error.message || 'Login failed');
       throw error;
@@ -121,7 +101,6 @@ export function useAuthService() {
       
       toast.success('Logged out successfully');
     } catch (error: any) {
-      console.error('Logout error:', error);
       // Still clear local state even if server logout fails
       dispatch(clearCredentials());
     }
@@ -132,22 +111,18 @@ export function useAuthService() {
     if (!user || !isAuthenticated) return false;
     // Use roles from Redux state (not user.roles)
     const userRoles = roles || [];
-    console.log('Checking role:', roleSlug, 'User roles from Redux:', userRoles);
     
     const hasRoleResult = userRoles.some((role: any) => {
       // Handle different role data structures
       if (role.role && role.role.slug) {
-        console.log('Checking role.role.slug:', role.role.slug, 'against:', roleSlug);
         return role.role.slug === roleSlug;
       }
       if (role.slug) {
-        console.log('Checking role.slug:', role.slug, 'against:', roleSlug);
         return role.slug === roleSlug;
       }
       return false;
     });
     
-    console.log('hasRole result for', roleSlug, ':', hasRoleResult);
     return hasRoleResult;
   };
 

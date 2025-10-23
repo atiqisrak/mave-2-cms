@@ -15,9 +15,16 @@ export const baseApi = createApi({
       
       // Get token from localStorage for client-side requests
       if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('mave_cms_token');
-        if (token) {
-          headers.set('Authorization', `Bearer ${token}`);
+        const tokens = localStorage.getItem('mave_cms_tokens');
+        if (tokens) {
+          try {
+            const parsedTokens = JSON.parse(tokens);
+            if (parsedTokens.accessToken) {
+              headers.set('Authorization', `Bearer ${parsedTokens.accessToken}`);
+            }
+          } catch (error) {
+            console.warn('Failed to parse tokens from localStorage:', error);
+          }
         }
       }
       
@@ -30,7 +37,18 @@ export const baseApi = createApi({
 
 // GraphQL query helper functions
 export const graphqlQuery = async (query: string, variables: any = {}) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('mave_cms_token') : null;
+  let token = null;
+  if (typeof window !== 'undefined') {
+    const tokens = localStorage.getItem('mave_cms_tokens');
+    if (tokens) {
+      try {
+        const parsedTokens = JSON.parse(tokens);
+        token = parsedTokens.accessToken;
+      } catch (error) {
+        console.warn('Failed to parse tokens from localStorage:', error);
+      }
+    }
+  }
   
   const response = await fetch(`${baseUrl}/graphql`, {
     method: 'POST',

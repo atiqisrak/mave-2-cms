@@ -300,6 +300,23 @@ export const ROLES_QUERY = gql`
   }
 `;
 
+export const GET_ROLES_QUERY = gql`
+  query GetRoles {
+    roles {
+      id
+      name
+      slug
+      description
+      permissions
+      color
+      icon
+      priority
+      isSystem
+      isDefault
+    }
+  }
+`;
+
 export const PERMISSIONS_QUERY = gql`
   query Permissions($where: PermissionWhereInput, $orderBy: [PermissionOrderByInput!], $skip: Int, $take: Int) {
     permissions(where: $where, orderBy: $orderBy, skip: $skip, take: $take) {

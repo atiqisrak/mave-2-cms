@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Users, Mail, Loader2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRoles } from '@/hooks/use-roles';
+import { useCreateShareableInviteLinkMutation } from '@/store/api/invitationApi';
 
 interface InviteUserCardProps {
   organizationId?: string;
@@ -14,31 +16,45 @@ interface InviteUserCardProps {
 }
 
 export function InviteUserCard({ organizationId, onInviteSuccess }: InviteUserCardProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
     roleId: '',
     expiresInDays: 7,
+    maxUses: 10,
   });
+
+  const { roles, loading: rolesLoading, error: rolesError } = useRoles();
+  const [createShareableInviteLink, { isLoading, error: inviteError }] = useCreateShareableInviteLinkMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.email.trim()) {
-      toast.error('Please enter an email address');
+    if (!formData.roleId) {
+      toast.error('Please select a role');
       return;
     }
 
-    setIsLoading(true);
+    if (!organizationId) {
+      toast.error('Organization ID is required');
+      return;
+    }
+
     try {
-      // TODO: Implement inviteUserByEmail mutation
-      console.log('Inviting user:', formData);
-      toast.success('Invitation sent successfully!');
-      setFormData({ email: '', roleId: '', expiresInDays: 7 });
+      const result = await createShareableInviteLink({
+        organizationId,
+        roleId: formData.roleId,
+        expiresInDays: formData.expiresInDays,
+        maxUses: formData.maxUses,
+      }).unwrap();
+
+      // Copy the invitation link to clipboard
+      const invitationLink = `${window.location.origin}/auth/invite/${result.token}`;
+      await navigator.clipboard.writeText(invitationLink);
+      
+      toast.success('Shareable invitation link created and copied to clipboard!');
+      setFormData({ roleId: '', expiresInDays: 7, maxUses: 10 });
       onInviteSuccess?.();
-    } catch (error) {
-      toast.error('Failed to send invitation');
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      const errorMessage = error?.data?.message || error?.message || 'Failed to create invitation link';
+      toast.error(errorMessage);
     }
   };
 
@@ -47,30 +63,14 @@ export function InviteUserCard({ organizationId, onInviteSuccess }: InviteUserCa
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5" />
-          Invite Team Member
+          Create Invitation Link
         </CardTitle>
         <CardDescription>
-          Send an invitation to join your organization
+          Generate a shareable link to invite team members
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="invite-email">Email Address</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="invite-email"
-                type="email"
-                placeholder="user@example.com"
-                className="pl-10"
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                disabled={isLoading}
-                required
-              />
-            </div>
-          </div>
           
           <div className="space-y-2">
             <Label htmlFor="invite-role">Role</Label>
@@ -79,13 +79,21 @@ export function InviteUserCard({ organizationId, onInviteSuccess }: InviteUserCa
               className="w-full px-3 py-2 border border-input bg-background rounded-md"
               value={formData.roleId}
               onChange={(e) => setFormData(prev => ({ ...prev, roleId: e.target.value }))}
-              disabled={isLoading}
+              disabled={isLoading || rolesLoading}
             >
               <option value="">Select a role</option>
-              <option value="admin">Admin</option>
-              <option value="editor">Editor</option>
-              <option value="viewer">Viewer</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.name}
+                </option>
+              ))}
             </select>
+            {rolesError && (
+              <p className="text-sm text-red-500">Failed to load roles</p>
+            )}
+            {inviteError && (
+              <p className="text-sm text-red-500">Failed to create invitation link</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -101,16 +109,34 @@ export function InviteUserCard({ organizationId, onInviteSuccess }: InviteUserCa
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <div className="space-y-2">
+            <Label htmlFor="max-uses">Maximum uses</Label>
+            <Input
+              id="max-uses"
+              type="number"
+              min="1"
+              max="100"
+              value={formData.maxUses}
+              onChange={(e) => setFormData(prev => ({ ...prev, maxUses: parseInt(e.target.value) || 10 }))}
+              disabled={isLoading}
+            />
+          </div>
+
+          <Button type="submit" className="w-full" disabled={isLoading || rolesLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
+                Creating...
+              </>
+            ) : rolesLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading roles...
               </>
             ) : (
               <>
                 <Plus className="mr-2 h-4 w-4" />
-                Send Invitation
+                Create Invitation Link
               </>
             )}
           </Button>
