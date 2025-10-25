@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User, Organization, AuthTokens, AuthState, UserRole, Permission } from '@/types/auth';
+import { User, Organization, AuthTokens, AuthState, UserRole, Permission, AuthUser } from '@/types/auth';
 
 // Helper functions for localStorage
 const saveToLocalStorage = (key: string, value: any) => {
@@ -49,16 +49,31 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ user: User; tokens: AuthTokens; organization?: Organization }>) => {
+    setCredentials: (state, action: PayloadAction<{ user: AuthUser; tokens: AuthTokens; organization?: Organization }>) => {
       const { user, tokens, organization } = action.payload;
-      state.user = user;
+      // Convert AuthUser to User with default values
+      const fullUser: User = {
+        ...user,
+        phone: undefined,
+        timezone: 'UTC',
+        locale: 'en',
+        status: 'active' as const,
+        twoFactorEnabled: false,
+        lastLoginAt: undefined,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        organization: organization || undefined,
+        roles: [],
+        permissions: [],
+      };
+      state.user = fullUser;
       state.tokens = tokens;
-      state.organization = organization || user.organization || null;
+      state.organization = organization || null;
       state.isAuthenticated = true;
       state.error = null;
       
       // Save to localStorage
-      saveToLocalStorage('mave_cms_user', user);
+      saveToLocalStorage('mave_cms_user', fullUser);
       saveToLocalStorage('mave_cms_tokens', tokens);
       if (organization) {
         saveToLocalStorage('mave_cms_organization', organization);

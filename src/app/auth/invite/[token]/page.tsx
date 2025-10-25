@@ -1,15 +1,17 @@
-import { InviteAcceptanceForm } from '@/components/auth/invite-acceptance-form';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { InviteAcceptanceForm } from "@/components/auth/invite-acceptance-form";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 interface InvitePageProps {
-  params: {
+  params: Promise<{
     token: string;
-  };
+  }>;
 }
 
-export default function InvitePage({ params }: InvitePageProps) {
+export default async function InvitePage({ params }: InvitePageProps) {
+  const { token } = await params;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-primary/5 to-secondary/5 p-4">
       <div className="w-full max-w-md">
@@ -21,7 +23,7 @@ export default function InvitePage({ params }: InvitePageProps) {
             </Button>
           </Link>
         </div>
-        <InviteAcceptanceForm token={params.token} />
+        <InviteAcceptanceForm token={token} />
       </div>
     </div>
   );

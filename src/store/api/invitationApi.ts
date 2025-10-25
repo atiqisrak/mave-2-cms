@@ -146,10 +146,17 @@ const REGISTER_WITH_INVITATION_MUTATION = `
         lastName
         organizationId
       }
-      invitation {
+      organization {
         id
-        status
-        acceptedAt
+        name
+        slug
+        domain
+        plan
+        settings
+        branding
+        isActive
+        createdAt
+        updatedAt
       }
     }
   }
@@ -192,7 +199,14 @@ export const invitationApi = baseApi.injectEndpoints({
           variables: { input: args },
         },
       }),
-      transformResponse: (response: any) => response.data.validateInvitationToken,
+      transformResponse: (response: any) => {
+        console.log('ValidateInvitationToken response:', response);
+        if (!response.data) {
+          console.error('No data in response:', response);
+          throw new Error('No data received from server');
+        }
+        return response.data.validateInvitationToken;
+      },
     }),
     
     getInvitation: builder.query<Invitation, { token: string }>({

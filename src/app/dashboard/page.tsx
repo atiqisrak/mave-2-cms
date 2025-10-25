@@ -1,22 +1,28 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuthService } from '@/hooks/use-auth-service';
-import { useAppSelector } from '@/hooks/use-app-selector';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useAuthService } from "@/hooks/use-auth-service";
+import { useAppSelector } from "@/hooks/use-app-selector";
 // import { useGetCurrentUserQuery } from "@/store/api/authApi";
-import { 
-  FileText, 
-  Users, 
-  Settings, 
-  BarChart3, 
-  Upload, 
+import {
+  FileText,
+  Users,
+  Settings,
+  BarChart3,
+  Upload,
   Globe,
   Shield,
   Zap,
   User,
   Building,
-  LogOut
+  LogOut,
 } from "lucide-react";
 import { useAppDispatch } from "@/hooks/use-app-dispatch";
 import { clearCredentials } from "@/store/slices/authSlice";
@@ -31,11 +37,13 @@ import { InvitationListCard } from "@/components/organization/invitation-list-ca
 
 export default function DashboardPage() {
   const { user, isAdmin, isSuperAdmin } = useAuthService();
-  const { organization, roles, permissions } = useAppSelector((state) => state.auth);
+  const { organization, roles, permissions } = useAppSelector(
+    (state) => state.auth
+  );
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [logout] = useLogoutMutation();
-  
+
   // We don't need to fetch current user since we already have it from login
   const isLoading = false;
   const error = null;
@@ -44,19 +52,19 @@ export default function DashboardPage() {
     try {
       await logout().unwrap();
       dispatch(clearCredentials());
-      toast.success('Logged out successfully');
-      router.push('/auth/login');
+      toast.success("Logged out successfully");
+      router.push("/auth/login");
     } catch (error) {
       // Even if logout fails on server, clear local state
       dispatch(clearCredentials());
-      router.push('/auth/login');
+      router.push("/auth/login");
     }
   };
 
   // Handle authentication errors - only redirect if we don't have user data
   if (error && !isLoading && !user) {
     dispatch(clearCredentials());
-    router.push('/auth/login');
+    router.push("/auth/login");
     return null;
   }
 
@@ -72,25 +80,30 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" suppressHydrationWarning>
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">M</span>
+                <span className="text-primary-foreground font-bold text-sm">
+                  M
+                </span>
               </div>
               <h1 className="text-2xl font-bold">Mave CMS v2.0</h1>
             </div>
             <div className="flex items-center space-x-4">
               {user && (
-                <div className="flex items-center space-x-2 text-sm text-muted-foreground cursor-pointer"
-                title={`${user.firstName} ${user.lastName}`}
-                onClick={() => router.push('/dashboard/profile')}
+                <div
+                  className="flex items-center space-x-2 text-sm text-muted-foreground cursor-pointer"
+                  title={`${user.firstName} ${user.lastName}`}
+                  onClick={() => router.push("/dashboard/profile")}
                 >
                   <User className="h-4 w-4" />
-                  <span>{user.firstName} {user.lastName}</span>
+                  <span>
+                    {user.firstName} {user.lastName}
+                  </span>
                 </div>
               )}
               <Button variant="outline" onClick={handleLogout}>
@@ -105,7 +118,9 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome back, {user?.firstName}!</h2>
+          <h2 className="text-3xl font-bold mb-2">
+            Welcome back, {user?.firstName}!
+          </h2>
           <p className="text-muted-foreground">
             Here's what's happening with your content management system.
           </p>
@@ -115,9 +130,9 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Super Admin: Create Organization */}
           {isSuperAdmin() && (
-            <CreateOrganizationCard 
+            <CreateOrganizationCard
               onCreateSuccess={() => {
-                toast.success('Organization created successfully!');
+                toast.success("Organization created successfully!");
                 // Refresh organization data
               }}
             />
@@ -125,10 +140,10 @@ export default function DashboardPage() {
 
           {/* Org Admin: Invite Users */}
           {isAdmin() && organization && (
-            <InviteUserCard 
+            <InviteUserCard
               organizationId={organization.id}
               onInviteSuccess={() => {
-                toast.success('Invitation sent successfully!');
+                toast.success("Invitation sent successfully!");
                 // Refresh invitations list
               }}
             />
@@ -136,10 +151,10 @@ export default function DashboardPage() {
 
           {/* Organization Settings */}
           {organization && (
-            <OrganizationSettingsCard 
+            <OrganizationSettingsCard
               organization={organization}
               onUpdateSuccess={() => {
-                toast.success('Organization updated successfully!');
+                toast.success("Organization updated successfully!");
                 // Refresh organization data
               }}
             />
@@ -147,13 +162,13 @@ export default function DashboardPage() {
 
           {/* Invitation Management */}
           {isAdmin() && (
-            <InvitationListCard 
+            <InvitationListCard
               invitations={[]} // TODO: Fetch from API
               onResend={(invitationId) => {
-                toast.success('Invitation resent successfully!');
+                toast.success("Invitation resent successfully!");
               }}
               onRevoke={(invitationId) => {
-                toast.success('Invitation revoked successfully!');
+                toast.success("Invitation revoked successfully!");
               }}
             />
           )}

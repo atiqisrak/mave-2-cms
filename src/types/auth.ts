@@ -70,16 +70,19 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  organizationId: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    organizationId: string;
-  };
+  user: AuthUser;
+  organization?: Organization;
   requiresTwoFactor?: boolean;
   twoFactorToken?: string;
 }
@@ -225,7 +228,8 @@ export interface RegisterWithInvitationInput {
 export interface RegisterWithInvitationResponse {
   accessToken: string;
   refreshToken: string;
-  user: User;
+  user: AuthUser;
+  organization?: Organization;
   invitation: {
     id: string;
     status: string;

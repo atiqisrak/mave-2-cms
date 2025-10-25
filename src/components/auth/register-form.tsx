@@ -1,37 +1,58 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useRegisterMutation, useCreateOrganizationMutation } from '@/store/api/authApi';
-import { useAppDispatch } from '@/hooks/use-app-dispatch';
-import { setCredentials } from '@/store/slices/authSlice';
-import { Loader2, Mail, Lock, User, Building, Users } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  useRegisterMutation,
+  useCreateOrganizationMutation,
+} from "@/store/api/authApi";
+import { useAppDispatch } from "@/hooks/use-app-dispatch";
+import { setCredentials } from "@/store/slices/authSlice";
+import { Loader2, Mail, Lock, User, Building, Users } from "lucide-react";
+import { toast } from "sonner";
 
-const registerSchema = z.object({
-  firstName: z.string().min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  organizationName: z.string().optional(),
-  organizationSlug: z.string().optional(),
-  joinOrganizationSlug: z.string().optional(),
-}).refine((data) => {
-  // Either create new organization or join existing one
-  const hasNewOrg = data.organizationName && data.organizationSlug;
-  const hasJoinOrg = data.joinOrganizationSlug;
-  return hasNewOrg || hasJoinOrg;
-}, {
-  message: "Either create a new organization or join an existing one",
-  path: ["organizationName"],
-});
+const registerSchema = z
+  .object({
+    firstName: z.string().min(2, "First name must be at least 2 characters"),
+    lastName: z.string().min(2, "Last name must be at least 2 characters"),
+    email: z.string().email("Please enter a valid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    organizationName: z.string().optional(),
+    organizationSlug: z.string().optional(),
+    joinOrganizationSlug: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      // Either create new organization or join existing one
+      const hasNewOrg = data.organizationName && data.organizationSlug;
+      const hasJoinOrg = data.joinOrganizationSlug;
+      return hasNewOrg || hasJoinOrg;
+    },
+    {
+      message: "Either create a new organization or join an existing one",
+      path: ["organizationName"],
+    }
+  );
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -47,18 +68,18 @@ export function RegisterForm() {
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      organizationName: '',
-      organizationSlug: '',
-      joinOrganizationSlug: '',
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      organizationName: "",
+      organizationSlug: "",
+      joinOrganizationSlug: "",
     },
   });
 
   // Check if this is an invitation flow
-  const invitationToken = searchParams.get('token');
+  const invitationToken = searchParams.get("token");
   const isInvitationFlow = !!invitationToken;
 
   // Redirect to invitation acceptance form if there's a token
@@ -69,14 +90,14 @@ export function RegisterForm() {
   }, [isInvitationFlow, invitationToken, router]);
 
   // Auto-generate organization slug from name
-  const watchOrganizationName = form.watch('organizationName');
+  const watchOrganizationName = form.watch("organizationName");
   useEffect(() => {
     if (watchOrganizationName) {
       const slug = watchOrganizationName
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      form.setValue('organizationSlug', slug);
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      form.setValue("organizationSlug", slug);
     }
   }, [watchOrganizationName, form]);
 
@@ -93,25 +114,29 @@ export function RegisterForm() {
           lastName: values.lastName,
         }).unwrap();
 
-        dispatch(setCredentials({
-          user: result.user,
-          tokens: {
-            accessToken: result.accessToken,
-            refreshToken: result.refreshToken,
-          },
-          organization: result.user.organization,
-        }));
+        dispatch(
+          setCredentials({
+            user: result.user,
+            tokens: {
+              accessToken: result.accessToken,
+              refreshToken: result.refreshToken,
+            },
+            organization: undefined,
+          })
+        );
 
-        toast.success('Account created successfully! Welcome to the organization.');
+        toast.success(
+          "Account created successfully! Welcome to the organization."
+        );
       } else {
         // Journey 1: Independent User → Organization Creator
         setIsCreatingOrg(true);
-        
+
         // First create the organization
         const orgResult = await createOrganization({
           name: values.organizationName!,
           slug: values.organizationSlug!,
-          plan: 'free',
+          plan: "free",
         }).unwrap();
 
         // Then register the user with the new organization
@@ -123,21 +148,23 @@ export function RegisterForm() {
           lastName: values.lastName,
         }).unwrap();
 
-        dispatch(setCredentials({
-          user: result.user,
-          tokens: {
-            accessToken: result.accessToken,
-            refreshToken: result.refreshToken,
-          },
-          organization: result.user.organization,
-        }));
+        dispatch(
+          setCredentials({
+            user: result.user,
+            tokens: {
+              accessToken: result.accessToken,
+              refreshToken: result.refreshToken,
+            },
+            organization: undefined,
+          })
+        );
 
-        toast.success('Account and organization created successfully!');
+        toast.success("Account and organization created successfully!");
       }
 
-      router.push('/dashboard');
+      router.push("/dashboard");
     } catch (error: any) {
-      toast.error(error.message || 'Registration failed');
+      toast.error(error.message || "Registration failed");
     } finally {
       setIsLoading(false);
       setIsCreatingOrg(false);
@@ -244,8 +271,8 @@ export function RegisterForm() {
                           const value = e.target.value;
                           // Clear organization creation fields when joining
                           if (value) {
-                            form.setValue('organizationName', '');
-                            form.setValue('organizationSlug', '');
+                            form.setValue("organizationName", "");
+                            form.setValue("organizationSlug", "");
                           }
                           field.onChange(value);
                         }}
@@ -274,7 +301,7 @@ export function RegisterForm() {
                           const value = e.target.value;
                           // Clear join field when creating new organization
                           if (value) {
-                            form.setValue('joinOrganizationSlug', '');
+                            form.setValue("joinOrganizationSlug", "");
                           }
                           field.onChange(value);
                         }}
@@ -303,7 +330,7 @@ export function RegisterForm() {
                           const value = e.target.value;
                           // Clear join field when creating new organization
                           if (value) {
-                            form.setValue('joinOrganizationSlug', '');
+                            form.setValue("joinOrganizationSlug", "");
                           }
                           field.onChange(value);
                         }}
@@ -336,15 +363,27 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading || isCreatingOrg}>
-              {(isLoading || isCreatingOrg) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading || isCreatingOrg}
+            >
+              {(isLoading || isCreatingOrg) && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Create Account
             </Button>
           </form>
         </Form>
         <div className="mt-6 text-center text-sm">
-          <span className="text-muted-foreground">Already have an account? </span>
-          <Button variant="link" className="p-0 h-auto" onClick={() => router.push('/auth/login')}>
+          <span className="text-muted-foreground">
+            Already have an account?{" "}
+          </span>
+          <Button
+            variant="link"
+            className="p-0 h-auto"
+            onClick={() => router.push("/auth/login")}
+          >
             Sign in
           </Button>
         </div>
