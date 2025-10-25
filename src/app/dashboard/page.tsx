@@ -34,6 +34,8 @@ import { CreateOrganizationCard } from "@/components/organization/create-organiz
 import { InviteUserCard } from "@/components/organization/invite-user-card";
 import { OrganizationSettingsCard } from "@/components/organization/organization-settings-card";
 import { InvitationListCard } from "@/components/organization/invitation-list-card";
+import { OrganizationManagementTable } from "@/components/admin/organization-management-table";
+import { UserManagementTable } from "@/components/admin/user-management-table";
 
 export default function DashboardPage() {
   const { user, isAdmin, isSuperAdmin } = useAuthService();
@@ -125,6 +127,24 @@ export default function DashboardPage() {
             Here's what's happening with your content management system.
           </p>
         </div>
+
+        {/* Super Admin Management */}
+        {isSuperAdmin() && (
+          <div className="space-y-8 mb-8">
+            <div>
+              <h3 className="text-2xl font-bold mb-4">Super Admin Panel</h3>
+              <p className="text-muted-foreground mb-6">
+                Manage all organizations and users across the platform
+              </p>
+            </div>
+
+            {/* Organization Management Table */}
+            <OrganizationManagementTable />
+
+            {/* User Management Table */}
+            <UserManagementTable />
+          </div>
+        )}
 
         {/* Organization Management */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

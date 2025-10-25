@@ -152,6 +152,8 @@ export interface AuthState {
   roles: UserRole[];
   permissions: Permission[];
   invitationToken: string | null;
+  currentSubdomain: string | null;
+  emailDomainMatch: boolean;
   isLoading: boolean;
   error: string | null;
 }

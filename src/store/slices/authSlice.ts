@@ -38,6 +38,8 @@ const getInitialState = (): AuthState => {
     roles: savedRoles,
     permissions: savedPermissions,
     invitationToken: null,
+    currentSubdomain: null,
+    emailDomainMatch: false,
     isLoading: false,
     error: null,
   };
@@ -49,8 +51,8 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ user: AuthUser; tokens: AuthTokens; organization?: Organization }>) => {
-      const { user, tokens, organization } = action.payload;
+    setCredentials: (state, action: PayloadAction<{ user: AuthUser; tokens: AuthTokens; organization?: Organization; emailDomainMatch?: boolean }>) => {
+      const { user, tokens, organization, emailDomainMatch } = action.payload;
       // Convert AuthUser to User with default values
       const fullUser: User = {
         ...user,
@@ -70,6 +72,7 @@ const authSlice = createSlice({
       state.tokens = tokens;
       state.organization = organization || null;
       state.isAuthenticated = true;
+      state.emailDomainMatch = emailDomainMatch || false;
       state.error = null;
       
       // Save to localStorage
@@ -110,6 +113,8 @@ const authSlice = createSlice({
       state.permissions = [];
       state.isAuthenticated = false;
       state.invitationToken = null;
+      state.currentSubdomain = null;
+      state.emailDomainMatch = false;
       state.error = null;
       
       // Clear from localStorage
@@ -121,6 +126,9 @@ const authSlice = createSlice({
       // clearFromLocalStorage('mave_cms_organization_slug');
       // clear all from local storage
       localStorage.clear();
+    },
+    setSubdomain: (state, action: PayloadAction<string | null>) => {
+      state.currentSubdomain = action.payload;
     },
     setInvitationToken: (state, action: PayloadAction<string | null>) => {
       state.invitationToken = action.payload;
@@ -157,6 +165,7 @@ export const {
   setError,
   updateUser,
   updateOrganization,
+  setSubdomain,
 } = authSlice.actions;
 
 export default authSlice.reducer;
