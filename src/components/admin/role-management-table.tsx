@@ -36,6 +36,7 @@ interface Role {
   permissions: string[];
   level: number;
   roleType: string;
+  priority: number;
   organizationId?: string;
   createdAt: string;
   updatedAt: string;

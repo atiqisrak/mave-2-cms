@@ -156,34 +156,28 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Organization Management */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Org Admin: Invite Users */}
-          {isAdmin() && organization && (
+        {/* Organization Management - Scoped to user's organization for regular admins */}
+        {isAdmin() && !isSuperAdmin() && organization && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Org Admin: Invite Users */}
             <InviteUserCard
               organizationId={organization.id}
               onInviteSuccess={() => {
                 toast.success("Invitation sent successfully!");
-                // Refresh invitations list
               }}
             />
-          )}
 
-          {/* Organization Settings */}
-          {organization && (
+            {/* Organization Settings */}
             <OrganizationSettingsCard
               organization={organization}
               onUpdateSuccess={() => {
                 toast.success("Organization updated successfully!");
-                // Refresh organization data
               }}
             />
-          )}
 
-          {/* Invitation Management */}
-          {isAdmin() && (
+            {/* Invitation Management */}
             <InvitationListCard
-              invitations={[]} // TODO: Fetch from API
+              invitations={[]}
               onResend={(invitationId) => {
                 toast.success("Invitation resent successfully!");
               }}
@@ -191,8 +185,8 @@ export default function DashboardPage() {
                 toast.success("Invitation revoked successfully!");
               }}
             />
-          )}
-        </div>
+          </div>
+        )}
       </main>
     </div>
   );

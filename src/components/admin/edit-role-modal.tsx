@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useAuthService } from "@/hooks/use-auth-service";
 
 interface Role {
   id: string;
@@ -33,6 +34,7 @@ interface Role {
   permissions: string[];
   level: number;
   roleType: string;
+  priority: number;
   organizationId?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -46,10 +48,8 @@ interface UpdateRoleInput {
   icon?: string;
   priority?: number;
   level?: number;
-  roleType?: string;
   isAssignable?: boolean;
   isDefault?: boolean;
-  organizationId?: string | null;
 }
 
 interface EditRoleModalProps {
@@ -65,6 +65,7 @@ export function EditRoleModal({
   role,
   onSubmit,
 }: EditRoleModalProps) {
+  const { isSuperAdmin } = useAuthService();
   const [form, setForm] = useState<UpdateRoleInput>({});
 
   // Update form when role changes
@@ -73,13 +74,11 @@ export function EditRoleModal({
       setForm({
         name: role.name,
         description: role.description || "",
-        roleType: role.roleType,
         isAssignable: role.isAssignable,
         isDefault: role.isDefault,
         level: role.level,
         color: role.color,
-        organizationId: role.organizationId,
-        priority: 0,
+        priority: role.priority,
       });
     }
   }, [role]);
@@ -131,27 +130,7 @@ export function EditRoleModal({
               placeholder="Role description"
             />
           </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-roleType">Role Type</Label>
-              <Select
-                value={form.roleType || ""}
-                onValueChange={(value) => setForm({ ...form, roleType: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="custom">Custom</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
-                  <SelectItem value="organization">Organization</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="editor">Editor</SelectItem>
-                  <SelectItem value="viewer">Viewer</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="edit-level">Level</Label>
               <Input
@@ -185,27 +164,59 @@ export function EditRoleModal({
               onChange={(e) => setForm({ ...form, color: e.target.value })}
             />
           </div>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="edit-assignable"
-              checked={form.isAssignable ?? true}
-              onCheckedChange={(checked) =>
-                setForm({ ...form, isAssignable: checked })
-              }
-              disabled={role.isSystem}
-            />
-            <Label htmlFor="edit-assignable">Assignable</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="edit-default"
-              checked={form.isDefault ?? false}
-              onCheckedChange={(checked) =>
-                setForm({ ...form, isDefault: checked })
-              }
-              disabled={role.isSystem}
-            />
-            <Label htmlFor="edit-default">Default Role</Label>
+          <div className="space-y-3 border-t pt-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-assignable"
+                checked={form.isAssignable ?? true}
+                onCheckedChange={(checked) =>
+                  setForm({ ...form, isAssignable: checked })
+                }
+                disabled={role.isSystem && !isSuperAdmin()}
+              />
+              <Label htmlFor="edit-assignable" className="cursor-pointer">
+                Assignable
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              Whether this role can be assigned to users
+            </p>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-default"
+                checked={form.isDefault ?? false}
+                onCheckedChange={(checked) =>
+                  setForm({ ...form, isDefault: checked })
+                }
+                disabled={role.isSystem && !isSuperAdmin()}
+              />
+              <Label htmlFor="edit-default" className="cursor-pointer">
+                Default Role
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              Automatically assign to new users in this organization
+            </p>
+            
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="edit-system"
+                checked={role.isSystem}
+                disabled
+              />
+              <Label htmlFor="edit-system" className="cursor-not-allowed text-muted-foreground">
+                System Role
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-6">
+              System roles are global and cannot be modified. Organization: {role.organizationId || "System-wide"}
+            </p>
+            {!isSuperAdmin() && role.isSystem && (
+              <p className="text-xs text-amber-500 ml-6 font-medium">
+                Note: Only super admins can modify system roles
+              </p>
+            )}
           </div>
           <div className="flex justify-end space-x-2">
             <Button
@@ -215,7 +226,7 @@ export function EditRoleModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={role.isSystem}>
+            <Button type="submit" disabled={role.isSystem && !isSuperAdmin()}>
               Update Role
             </Button>
           </div>
