@@ -1,6 +1,7 @@
 import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
+import { RetryLink } from '@apollo/client/link/retry';
 
 // HTTP Link
 const httpLink = createHttpLink({
@@ -47,7 +48,63 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-// Error Link
+let tokenRefreshPromise: Promise<string | null> | null = null;
+
+const refreshAccessToken = async (): Promise<string | null> => {
+  if (typeof window === 'undefined') return null;
+  
+  console.log('[Token Refresh] Starting token refresh...');
+  
+  try {
+    const tokensData = localStorage.getItem('mave_cms_tokens');
+    if (!tokensData) {
+      console.log('[Token Refresh] No tokens found in localStorage');
+      return null;
+    }
+    
+    const tokens = JSON.parse(tokensData);
+    if (!tokens?.refreshToken) {
+      console.log('[Token Refresh] No refresh token found');
+      return null;
+    }
+
+    console.log('[Token Refresh] Calling refresh mutation...');
+    const response = await fetch(process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:7845/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `mutation RefreshToken($input: RefreshTokenInput!) {
+          refreshToken(input: $input) {
+            accessToken
+            refreshToken
+          }
+        }`,
+        variables: { input: { refreshToken: tokens.refreshToken } }
+      })
+    });
+    
+    const data = await response.json();
+    console.log('[Token Refresh] Response received:', data);
+    
+    if (data.data?.refreshToken) {
+      const { accessToken, refreshToken: newRefreshToken } = data.data.refreshToken;
+      localStorage.setItem('mave_cms_tokens', JSON.stringify({ accessToken, refreshToken: newRefreshToken }));
+      console.log('[Token Refresh] Tokens updated successfully');
+      return accessToken;
+    }
+    
+    throw new Error('Token refresh failed');
+  } catch (error) {
+    console.error('[Token Refresh] Error:', error);
+    localStorage.clear();
+    if (typeof window !== 'undefined') {
+      window.location.href = '/auth/login';
+    }
+    return null;
+  }
+};
+
+// Error Link with token refresh
 const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path }) => {
@@ -57,30 +114,66 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
     });
   }
 
-  if (networkError) {
+  if (networkError && 'statusCode' in networkError) {
     console.error(`[Network error]: ${networkError}`);
     
-    // Handle 401 errors (unauthorized)
-    if ('statusCode' in networkError && networkError.statusCode === 401) {
-      // Clear tokens and redirect to login
-      if (typeof window !== 'undefined') {
-        // Clear both old and new format tokens
-        localStorage.removeItem('mave_cms_token');
-        localStorage.removeItem('mave_cms_refresh_token');
-        localStorage.removeItem('mave_cms_tokens');
-        localStorage.removeItem('mave_cms_user');
-        localStorage.removeItem('mave_cms_organization');
-        localStorage.removeItem('mave_cms_roles');
-        localStorage.removeItem('mave_cms_permissions');
-        window.location.href = '/auth/login';
+    // Handle 401 errors (unauthorized) with token refresh
+    if (networkError.statusCode === 401) {
+      if (typeof window === 'undefined') return;
+      
+      // Only attempt refresh if not already refreshing
+      if (!tokenRefreshPromise) {
+        tokenRefreshPromise = refreshAccessToken();
       }
+      
+      if (!tokenRefreshPromise) return;
+      
+      return new Promise((resolve) => {
+        tokenRefreshPromise!.then((token) => {
+          tokenRefreshPromise = null; // Reset for next refresh
+          if (token) {
+            // Retry the failed operation with the new token
+            const oldHeaders = operation.getContext().headers;
+            operation.setContext({
+              headers: {
+                ...oldHeaders,
+                authorization: `Bearer ${token}`,
+              },
+            });
+            // Retry the operation
+            const subscriber = {
+              next: (value: any) => resolve(value),
+              error: (err: any) => resolve(err),
+              complete: () => resolve({}),
+            };
+            forward(operation).subscribe(subscriber);
+          } else {
+            resolve(undefined);
+          }
+        }).catch(() => {
+          tokenRefreshPromise = null; // Reset on error
+          resolve(undefined);
+        });
+      }) as any;
     }
+  }
+});
+
+// Retry Link for failed operations
+const retryLink = new RetryLink({
+  attempts: (count) => {
+    return count < 3;
+  },
+  delay: {
+    initial: 300,
+    max: Infinity,
+    jitter: true
   }
 });
 
 // Create Apollo Client
 export const apolloClient = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: from([errorLink, retryLink, authLink, httpLink]),
   cache: new InMemoryCache({
     typePolicies: {
       Query: {

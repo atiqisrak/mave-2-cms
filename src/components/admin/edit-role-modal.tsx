@@ -20,25 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useAuthService } from "@/hooks/use-auth-service";
-
-interface Role {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  color?: string;
-  icon?: string;
-  isSystem: boolean;
-  isAssignable: boolean;
-  isDefault: boolean;
-  permissions: string[];
-  level: number;
-  roleType: string;
-  priority: number;
-  organizationId?: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Role } from "@/types/role";
 
 interface UpdateRoleInput {
   name?: string;

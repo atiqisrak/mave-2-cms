@@ -60,6 +60,11 @@ export function CreateUserModal({
     phone: "",
   });
 
+  // Deduplicate organizations by ID to prevent duplicate key errors
+  const uniqueOrganizations = organizations.filter((org, index, self) => 
+    index === self.findIndex((o) => o.id === org.id)
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(form);
@@ -94,7 +99,7 @@ export function CreateUserModal({
                 <SelectValue placeholder="Select organization" />
               </SelectTrigger>
               <SelectContent>
-                {organizations.map((org) => (
+                {uniqueOrganizations.map((org) => (
                   <SelectItem key={org.id} value={org.id}>
                     {org.name}
                   </SelectItem>

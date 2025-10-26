@@ -34,10 +34,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
         >
           <ReduxProvider>
             <GraphQLProvider>

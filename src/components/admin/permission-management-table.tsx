@@ -155,12 +155,17 @@ export function PermissionManagementTable() {
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <p className="text-destructive">
-              Error loading permissions: {error.message}
-            </p>
-            <Button onClick={() => refetch()} className="mt-4">
-              Retry
-            </Button>
+            {
+              error.message.includes("Unauthorized") ? (
+                <p className="text-orange-500 font-medium text-lg bg-orange-500/10 p-4 rounded-md">
+                  You are not authorized to access this page. <br />Please contact the administrator to get access.
+                </p>
+              ) : (
+                  <p className="text-destructive font-medium text-lg bg-destructive/10 p-4 rounded-md">
+                  Error loading permissions: {error.message}
+                </p>
+              )
+            }
           </div>
         </CardContent>
       </Card>
@@ -199,7 +204,7 @@ export function PermissionManagementTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {permissions.map((permission) => (
+              {permissions.map((permission: any) => (
                 <TableRow key={permission.id}>
                   <TableCell className="font-medium">
                     <div>

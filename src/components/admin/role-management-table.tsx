@@ -22,25 +22,7 @@ import {
 import { CreateRoleModal } from "@/components/admin/create-role-modal";
 import { EditRoleModal } from "@/components/admin/edit-role-modal";
 import { RoleTable } from "@/components/admin/role-table";
-
-interface Role {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  color?: string;
-  icon?: string;
-  isSystem: boolean;
-  isAssignable: boolean;
-  isDefault: boolean;
-  permissions: string[];
-  level: number;
-  roleType: string;
-  priority: number;
-  organizationId?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Role } from "@/types/role";
 
 interface CreateRoleInput {
   name: string;
@@ -172,12 +154,17 @@ export function RoleManagementTable() {
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <p className="text-destructive">
-              Error loading roles: {error.message}
-            </p>
-            <Button onClick={() => refetch()} className="mt-4">
-              Retry
-            </Button>
+            {
+              error.message.includes("Unauthorized") ? (
+                <p className="text-orange-500 font-medium text-lg bg-orange-500/10 p-4 rounded-md">
+                  You are not authorized to access this page. <br />Please contact the administrator to get access.
+                </p>
+              ) : (
+                <p className="text-destructive font-medium text-lg bg-destructive/10 p-4 rounded-md">
+                  Error loading roles: {error.message}
+                </p>
+              )
+            }
           </div>
         </CardContent>
       </Card>

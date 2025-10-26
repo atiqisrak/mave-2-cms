@@ -12,24 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Edit, Trash2, Shield } from "lucide-react";
 import { format } from "date-fns";
-
-interface Role {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  color?: string;
-  icon?: string;
-  isSystem: boolean;
-  isAssignable: boolean;
-  isDefault: boolean;
-  permissions: string[];
-  level: number;
-  roleType: string;
-  organizationId?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Role } from "@/types/role";
 
 interface RoleTableProps {
   roles: Role[];
