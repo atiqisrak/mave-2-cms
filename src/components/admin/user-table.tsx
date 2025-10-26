@@ -89,6 +89,7 @@ export function UserTable({ users, onEdit, onDelete }: UserTableProps) {
           <TableHead>Name</TableHead>
           <TableHead>Email</TableHead>
           <TableHead>Username</TableHead>
+          <TableHead>Organization</TableHead>
           <TableHead>Roles</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Created</TableHead>
@@ -118,6 +119,14 @@ export function UserTable({ users, onEdit, onDelete }: UserTableProps) {
               ) : (
                 <span className="text-muted-foreground text-sm">-</span>
               )}
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">{user.organization.name}</span>
+                <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                  {user.organization.slug}
+                </code>
+              </div>
             </TableCell>
             <TableCell>
               <div className="flex flex-wrap gap-1">

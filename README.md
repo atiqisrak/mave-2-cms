@@ -1,8 +1,8 @@
-# 🚀 Mave CMS v2.0 - The Future of Headless Content Management
+# 🚀 Mave CMS v2 - The Future of Headless Content Management
 
 <div align="center">
 
-<img src="https://github.com/atiqisrak/mave-2-cms/blob/main/github-banner.png" alt="Mave CMS v2.0 Dashboard" width="800" height="400" style="border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+<img src="https://github.com/atiqisrak/mave-2-cms/blob/main/github-banner.png" alt="Mave CMS v2 Dashboard" width="800" height="400" style="border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
 
 ## 👨‍💻 **Created by [Atiq Israk](https://atiqisrak.vercel.app)**
 
@@ -46,7 +46,7 @@
 
 ---
 
-## 🌟 Why Mave CMS v2.0 Will Dominate the Market
+## 🌟 Why Mave CMS v2 Will Dominate the Market
 
 ### 🎯 **Built for Scale from Day One**
 
@@ -275,7 +275,7 @@ graph TB
 
 ```mermaid
 graph LR
-    subgraph "Mave CMS v2.0"
+    subgraph "Mave CMS v2"
         A[API Response: 50ms]
         B[Concurrent Users: 100K+]
         C[Content Entries: Unlimited]
@@ -303,14 +303,14 @@ graph LR
 
 </div>
 
-| Metric                | Mave CMS v2.0 | Competitors   |
-| --------------------- | ------------- | ------------- |
-| **API Response Time** | < 50ms (p95)  | 200-500ms     |
-| **Concurrent Users**  | 100,000+      | 10,000        |
-| **Content Entries**   | Unlimited     | Limited       |
-| **Global CDN**        | ✅ Included   | ❌ Extra Cost |
-| **Real-time Updates** | ✅ WebSocket  | ❌ Polling    |
-| **Multi-tenant**      | ✅ Native     | ❌ Plugin     |
+| Metric                | Mave CMS v2  | Competitors   |
+| --------------------- | ------------ | ------------- |
+| **API Response Time** | < 50ms (p95) | 200-500ms     |
+| **Concurrent Users**  | 100,000+     | 10,000        |
+| **Content Entries**   | Unlimited    | Limited       |
+| **Global CDN**        | ✅ Included  | ❌ Extra Cost |
+| **Real-time Updates** | ✅ WebSocket | ❌ Polling    |
+| **Multi-tenant**      | ✅ Native    | ❌ Plugin     |
 
 ### 📈 **Performance Metrics Dashboard**
 
@@ -570,7 +570,7 @@ graph TD
 
 ---
 
-## 🏆 Why Choose Mave CMS v2.0?
+## 🏆 Why Choose Mave CMS v2?
 
 ### ✅ **vs. Strapi**
 
@@ -603,7 +603,7 @@ graph TD
 
 ```mermaid
 gantt
-    title Mave CMS v2.0 Development Roadmap
+    title Mave CMS v2 Development Roadmap
     dateFormat  YYYY-MM-DD
     section Q1 2026
     AI Content Assistant    :active, ai, 2026-01-01, 2026-03-31

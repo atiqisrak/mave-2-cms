@@ -31,6 +31,9 @@ interface Organization {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  _count?: {
+    users: number;
+  };
 }
 
 interface CreateOrganizationInput {
@@ -44,7 +47,6 @@ interface CreateOrganizationInput {
 
 interface UpdateOrganizationInput {
   name?: string;
-  slug?: string;
   domain?: string;
   plan?: string;
   isActive?: boolean;
@@ -173,6 +175,11 @@ export function OrganizationManagementTable() {
   }
 
   const organizations = data?.organizations || [];
+  
+  // Deduplicate organizations by ID to prevent duplicate key errors
+  const uniqueOrganizations = organizations.filter((org: Organization, index: number, self: Organization[]) => 
+    index === self.findIndex((o: Organization) => o.id === org.id)
+  );
 
   return (
     <Card>
@@ -181,7 +188,7 @@ export function OrganizationManagementTable() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Building2 className="h-5 w-5" />
-              Organizations ({organizations.length})
+              Organizations ({uniqueOrganizations.length})
             </CardTitle>
             <CardDescription>
               Manage all organizations in the system
@@ -196,7 +203,7 @@ export function OrganizationManagementTable() {
       </CardHeader>
       <CardContent>
         <OrganizationTable
-          organizations={organizations}
+          organizations={uniqueOrganizations}
           onEdit={openEditModal}
           onDelete={handleDelete}
         />

@@ -33,7 +33,6 @@ interface Organization {
 
 interface UpdateOrganizationInput {
   name?: string;
-  slug?: string;
   domain?: string;
   plan?: string;
   isActive?: boolean;
@@ -59,7 +58,6 @@ export function EditOrganizationModal({
     if (organization) {
       setForm({
         name: organization.name,
-        slug: organization.slug,
         domain: organization.domain || "",
         plan: organization.plan,
         isActive: organization.isActive,
@@ -97,8 +95,9 @@ export function EditOrganizationModal({
             <Label htmlFor="edit-slug">Slug</Label>
             <Input
               id="edit-slug"
-              value={form.slug || ""}
-              onChange={(e) => setForm({ ...form, slug: e.target.value })}
+              value={organization.slug}
+              disabled
+              className="bg-muted"
               placeholder="organization-slug"
             />
           </div>

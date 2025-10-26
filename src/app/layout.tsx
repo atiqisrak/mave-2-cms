@@ -5,6 +5,7 @@ import { ReduxProvider } from "@/components/providers/redux-provider";
 import { GraphQLProvider } from "@/components/providers/graphql-provider";
 import { AuthInitializer } from "@/components/providers/auth-initializer";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mave CMS v2.0",
+  title: "Mave CMS v2",
   description: "The Future of Headless Content Management",
 };
 
@@ -32,14 +33,21 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <ReduxProvider>
-          <GraphQLProvider>
-            <AuthInitializer>
-              {children}
-            </AuthInitializer>
-            <Toaster />
-          </GraphQLProvider>
-        </ReduxProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ReduxProvider>
+            <GraphQLProvider>
+              <AuthInitializer>
+                {children}
+              </AuthInitializer>
+              <Toaster />
+            </GraphQLProvider>
+          </ReduxProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

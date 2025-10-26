@@ -322,6 +322,7 @@ export function UserManagementTable() {
           onOpenChange={setIsEditModalOpen}
           user={editingUser}
           onSubmit={handleEditSubmit}
+          organizationId={editingUser?.organizationId}
         />
       </CardContent>
     </Card>

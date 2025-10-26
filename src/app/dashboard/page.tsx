@@ -36,6 +36,9 @@ import { OrganizationSettingsCard } from "@/components/organization/organization
 import { InvitationListCard } from "@/components/organization/invitation-list-card";
 import { OrganizationManagementTable } from "@/components/admin/organization-management-table";
 import { UserManagementTable } from "@/components/admin/user-management-table";
+import { RoleManagementTable } from "@/components/admin/role-management-table";
+import { PermissionManagementTable } from "@/components/admin/permission-management-table";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function DashboardPage() {
   const { user, isAdmin, isSuperAdmin } = useAuthService();
@@ -93,7 +96,7 @@ export default function DashboardPage() {
                   M
                 </span>
               </div>
-              <h1 className="text-2xl font-bold">Mave CMS v2.0</h1>
+              <h1 className="text-2xl font-bold">Mave CMS v2</h1>
             </div>
             <div className="flex items-center space-x-4">
               {user && (
@@ -108,6 +111,7 @@ export default function DashboardPage() {
                   </span>
                 </div>
               )}
+              <ModeToggle />
               <Button variant="outline" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
@@ -143,21 +147,17 @@ export default function DashboardPage() {
 
             {/* User Management Table */}
             <UserManagementTable />
+
+            {/* Role Management Table */}
+            <RoleManagementTable />
+
+            {/* Permission Management Table */}
+            <PermissionManagementTable />
           </div>
         )}
 
         {/* Organization Management */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Super Admin: Create Organization */}
-          {isSuperAdmin() && (
-            <CreateOrganizationCard
-              onCreateSuccess={() => {
-                toast.success("Organization created successfully!");
-                // Refresh organization data
-              }}
-            />
-          )}
-
           {/* Org Admin: Invite Users */}
           {isAdmin() && organization && (
             <InviteUserCard

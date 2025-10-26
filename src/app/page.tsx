@@ -25,7 +25,7 @@ export default function Home() {
               <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm">M</span>
               </div>
-              <h1 className="text-2xl font-bold">Mave CMS v2.0</h1>
+              <h1 className="text-2xl font-bold">Mave CMS v2</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/docs">
@@ -69,7 +69,7 @@ export default function Home() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h3 className="text-3xl font-bold mb-4">Why Choose Mave CMS v2.0?</h3>
+            <h3 className="text-3xl font-bold mb-4">Why Choose Mave CMS v2?</h3>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Built with modern technologies and designed for scale from day one.
             </p>
@@ -205,7 +205,7 @@ export default function Home() {
               <div className="h-6 w-6 bg-primary rounded flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xs">M</span>
               </div>
-              <span className="font-semibold">Mave CMS v2.0</span>
+              <span className="font-semibold">Mave CMS v2</span>
             </div>
             <p className="text-muted-foreground">
               Made with ❤️ by <a href="https://atiqisrak.vercel.app" className="text-primary hover:underline">Atiq Israk</a>

@@ -61,6 +61,9 @@ export const ALL_ORGANIZATIONS_QUERY = gql`
       isActive
       createdAt
       updatedAt
+      _count {
+        users
+      }
     }
   }
 `;

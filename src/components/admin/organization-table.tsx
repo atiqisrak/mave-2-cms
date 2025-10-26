@@ -22,6 +22,9 @@ interface Organization {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  _count?: {
+    users: number;
+  };
 }
 
 interface OrganizationTableProps {
@@ -86,7 +89,8 @@ export function OrganizationTable({
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4 text-muted-foreground" />-
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  {org._count?.users || 0}
                 </div>
               </TableCell>
               <TableCell>

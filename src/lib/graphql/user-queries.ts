@@ -77,6 +77,29 @@ export const ALL_USERS_QUERY = gql`
   }
 `;
 
+export const ALL_USERS_ACROSS_ORGS_QUERY = gql`
+  query AllUsers($skip: Int, $take: Int) {
+    allUsers(skip: $skip, take: $take) {
+      id
+      email
+      firstName
+      lastName
+      username
+      phone
+      status
+      isSystem
+      createdAt
+      updatedAt
+      organizationId
+      organization {
+        id
+        name
+        slug
+      }
+    }
+  }
+`;
+
 export const USER_DETAILS_QUERY = gql`
   query UserDetails($id: String!) {
     userDetails(id: $id) {

@@ -2,7 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { ALL_ORGANIZATIONS_QUERY } from "@/lib/graphql/organization-queries";
-import { ALL_USERS_QUERY } from "@/lib/graphql/user-queries";
+import { ALL_USERS_ACROSS_ORGS_QUERY } from "@/lib/graphql/user-queries";
 
 interface User {
   id: string;
@@ -16,6 +16,24 @@ interface User {
   createdAt: string;
   updatedAt: string;
   organizationId: string;
+  organization: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  roles: Array<{
+    id: string;
+    roleId: string;
+    role: {
+      id: string;
+      name: string;
+      slug: string;
+      color?: string;
+      icon?: string;
+    };
+    scope: string;
+    isActive: boolean;
+  }>;
 }
 
 interface Organization {
@@ -32,31 +50,22 @@ export function useAllUsers() {
     }
   );
 
-  // For now, we'll fetch users from the system organization
-  // In a real implementation, you'd need to fetch from all organizations
   const { data: usersData, loading: usersLoading, error: usersError, refetch: refetchUsers } = useQuery(
-    ALL_USERS_QUERY,
+    ALL_USERS_ACROSS_ORGS_QUERY,
     {
       variables: { 
-        organizationId: "37bbe2d7-5dd2-4ab5-a50f-3f94d498e9d8", // System org
         skip: 0, 
         take: 1000 
       },
-      skip: !orgsData, // Wait for organizations to load first
     }
   );
 
   const organizations = orgsData?.organizations || [];
-  const users = usersData?.users || [];
+  const users = usersData?.allUsers || [];
 
-  // Add organization info to users
-  const usersWithOrg = users.map((user: User) => ({
+  // Add roles to users (empty for now, can be fetched separately if needed)
+  const usersWithRoles = users.map((user: User) => ({
     ...user,
-    organization: organizations.find((org: Organization) => org.id === user.organizationId) || {
-      id: user.organizationId,
-      name: "Unknown",
-      slug: "unknown"
-    },
     roles: [] // We'll need to fetch roles separately if needed
   }));
 
@@ -66,7 +75,7 @@ export function useAllUsers() {
   };
 
   return {
-    users: usersWithOrg,
+    users: usersWithRoles,
     organizations,
     loading: orgsLoading || usersLoading,
     error: orgsError || usersError,
