@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User, Organization, AuthTokens, AuthState, UserRole, Permission } from '@/types/auth';
+import { User, Organization, AuthTokens, AuthState, UserRole, Permission, AuthUser } from '@/types/auth';
 
 // Helper functions for localStorage
 const saveToLocalStorage = (key: string, value: any) => {
@@ -38,6 +38,8 @@ const getInitialState = (): AuthState => {
     roles: savedRoles,
     permissions: savedPermissions,
     invitationToken: null,
+    currentSubdomain: null,
+    emailDomainMatch: false,
     isLoading: false,
     error: null,
   };
@@ -49,16 +51,32 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ user: User; tokens: AuthTokens; organization?: Organization }>) => {
-      const { user, tokens, organization } = action.payload;
-      state.user = user;
+    setCredentials: (state, action: PayloadAction<{ user: AuthUser; tokens: AuthTokens; organization?: Organization; emailDomainMatch?: boolean }>) => {
+      const { user, tokens, organization, emailDomainMatch } = action.payload;
+      // Convert AuthUser to User with default values
+      const fullUser: User = {
+        ...user,
+        phone: undefined,
+        timezone: 'UTC',
+        locale: 'en',
+        status: 'active' as const,
+        twoFactorEnabled: false,
+        lastLoginAt: undefined,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        organization: organization || undefined,
+        roles: [],
+        permissions: [],
+      };
+      state.user = fullUser;
       state.tokens = tokens;
-      state.organization = organization || user.organization || null;
+      state.organization = organization || null;
       state.isAuthenticated = true;
+      state.emailDomainMatch = emailDomainMatch || false;
       state.error = null;
       
       // Save to localStorage
-      saveToLocalStorage('mave_cms_user', user);
+      saveToLocalStorage('mave_cms_user', fullUser);
       saveToLocalStorage('mave_cms_tokens', tokens);
       if (organization) {
         saveToLocalStorage('mave_cms_organization', organization);
@@ -95,6 +113,8 @@ const authSlice = createSlice({
       state.permissions = [];
       state.isAuthenticated = false;
       state.invitationToken = null;
+      state.currentSubdomain = null;
+      state.emailDomainMatch = false;
       state.error = null;
       
       // Clear from localStorage
@@ -106,6 +126,9 @@ const authSlice = createSlice({
       // clearFromLocalStorage('mave_cms_organization_slug');
       // clear all from local storage
       localStorage.clear();
+    },
+    setSubdomain: (state, action: PayloadAction<string | null>) => {
+      state.currentSubdomain = action.payload;
     },
     setInvitationToken: (state, action: PayloadAction<string | null>) => {
       state.invitationToken = action.payload;
@@ -142,6 +165,7 @@ export const {
   setError,
   updateUser,
   updateOrganization,
+  setSubdomain,
 } = authSlice.actions;
 
 export default authSlice.reducer;

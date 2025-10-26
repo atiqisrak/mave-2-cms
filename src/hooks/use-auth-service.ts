@@ -57,13 +57,7 @@ export function useAuthService() {
       
       // Step 2: Store tokens and basic user info
       dispatch(setCredentials({
-        user: {
-          ...loginResult.user,
-          status: 'active' as const,
-          twoFactorEnabled: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
+        user: loginResult.user,
         tokens: {
           accessToken: loginResult.accessToken,
           refreshToken: loginResult.refreshToken,
